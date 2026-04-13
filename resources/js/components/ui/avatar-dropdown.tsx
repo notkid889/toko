@@ -40,7 +40,7 @@ export function AvatarDropdown() {
                         className="cursor-pointer"
                     >
                         <Link
-                            href={logout.url()}
+                            href={logout()}
                             method="post"
                             as="button"
                             className="flex w-full items-center"
