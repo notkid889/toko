@@ -25,7 +25,7 @@ const MenuLists:MenuGroup[] = [
             {
                 id: 3,
                 name: 'User Management',
-                route: '/users',
+                route: '/admin/users',
                 icon: 'Users',
                 order: 0,
                 permission_key: 'users',
@@ -34,7 +34,7 @@ const MenuLists:MenuGroup[] = [
             {
                 id: 4,
                 name: 'Role Management',
-                route: '/roles',
+                route: '/admin/roles',
                 icon: 'Shield',
                 order: 1,
                 permission_key: 'roles',
@@ -43,10 +43,19 @@ const MenuLists:MenuGroup[] = [
             {
                 id: 5,
                 name: 'Menu Management',
-                route: '/menus',
+                route: '/admin/menus',
                 icon: 'Menu',
                 order: 2,
                 permission_key: 'menu-items',
+                parent_id: 1
+            },
+            {
+                id: 6,
+                name: 'Permission Management',
+                route: '/admin/permissions',
+                icon: 'KeyRound',
+                order: 3,
+                permission_key: 'permissions',
                 parent_id: 1
             },
         ]

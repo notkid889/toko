@@ -22,7 +22,8 @@ export default function Login({
             <Head title="Log in" />
 
             <Form
-                {...loginStore.form()}
+                action={loginStore.url()}
+                method="post"
                 resetOnSuccess={['password']}
                 className="flex flex-col gap-6"
             >

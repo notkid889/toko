@@ -1,38 +1,57 @@
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "./ui/sidebar";
-import MenuLists from "@/const/menu";
-import { Menu, MenuGroup } from "@/types";
 import getIcon from "./icon-map";
-import { useCurrentUrl } from "@/hooks/use-current-url";
+
+interface MenuItem {
+    id: number;
+    name: string;
+    route: string;
+    icon: string;
+    order: number;
+    permission_key: string | null;
+}
+
+interface MenuGroup {
+    id: number;
+    name: string;
+    order: number;
+    children: MenuItem[];
+}
 
 export default function NavMenu() {
-    const menu = MenuLists;
-    const { isCurrentUrl } = useCurrentUrl();
+    const page = usePage<{ menus: MenuGroup[] }>();
+    const menus = page.props.menus;
+    const url = page.url;
+
+    const isActive = (route: string) => {
+        if (!route) return false;
+        if (route === '/') return url === '/';
+        return url === route || url.startsWith(`${route}/`);
+    };
+
     return (
         <>
-        {
-            menu.map((item:MenuGroup)=> (
-                <SidebarGroup className="px-2 py-0" key={item.id}>
-                    <SidebarGroupLabel>{item.name}</SidebarGroupLabel>
+            {(menus ?? []).map((group) => (
+                <SidebarGroup className="px-2 py-0" key={group.id}>
+                    <SidebarGroupLabel>{group.name}</SidebarGroupLabel>
                     <SidebarMenu className="gap-1">
-                            {item.child.map((child:Menu)=> (
-                                <SidebarMenuItem key={child.id}>
-                                    <SidebarMenuButton
-                                        asChild
-                                        isActive={isCurrentUrl(child.route)}
-                                        tooltip={{ children: item.name }}
-                                    >
-                                        <Link href={child.route} prefetch>
-                                            {getIcon(child.icon)}
-                                            <span>{child.name}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
+                        {group.children.map((child) => (
+                            <SidebarMenuItem key={child.id}>
+                                <SidebarMenuButton
+                                    asChild
+                                    isActive={isActive(child.route)}
+                                    tooltip={{ children: child.name }}
+                                >
+                                    <Link href={child.route} prefetch>
+                                        {getIcon(child.icon)}
+                                        <span>{child.name}</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
                     </SidebarMenu>
                 </SidebarGroup>
-            ))
-        }
+            ))}
         </>
     );
 }

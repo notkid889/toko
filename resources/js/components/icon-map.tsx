@@ -1,4 +1,4 @@
-import { LayoutDashboard, Menu, Package, Shield, Users } from "lucide-react";
+import { KeyRound, LayoutDashboard, Menu, Package, Shield, Users } from "lucide-react";
 import { ReactNode } from "react";
 
 const IconMap: Record<string, ReactNode> = {
@@ -16,6 +16,9 @@ const IconMap: Record<string, ReactNode> = {
     ),
     Package: (
         <Package/>
+    ),
+    KeyRound: (
+        <KeyRound/>
     ),
 };
 function getIcon(iconName?: string): ReactNode {
