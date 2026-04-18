@@ -1,24 +1,33 @@
-import { KeyRound, LayoutDashboard, Menu, Package, Shield, Users } from "lucide-react";
+import { KeyRound, LayoutDashboard, Menu, Package, Shield, ShoppingBag, ShoppingCart, Tags, Users } from "lucide-react";
 import { ReactNode } from "react";
 
 const IconMap: Record<string, ReactNode> = {
     LayoutDashboard: (
-        <LayoutDashboard/>
+        <LayoutDashboard />
     ),
     Users: (
-        <Users/>
+        <Users />
     ),
     Shield: (
-        <Shield/>
+        <Shield />
     ),
     Menu: (
-       <Menu/>
+        <Menu />
     ),
     Package: (
-        <Package/>
+        <Package />
     ),
     KeyRound: (
-        <KeyRound/>
+        <KeyRound />
+    ),
+    ShoppingBag: (
+        <ShoppingBag />
+    ),
+    Tags: (
+        <Tags />
+    ),
+    ShoppingCart: (
+        <ShoppingCart />
     ),
 };
 function getIcon(iconName?: string): ReactNode {

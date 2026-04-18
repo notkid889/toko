@@ -35,6 +35,7 @@ export default function Login({
                                 <Input
                                     id="username"
                                     name="username"
+                                    className='bg-neutral-200'
                                     required
                                     autoFocus
                                     tabIndex={1}
@@ -49,6 +50,7 @@ export default function Login({
                                     id="password"
                                     type="password"
                                     name="password"
+                                    className='bg-neutral-200'
                                     required
                                     tabIndex={2}
                                     autoComplete="current-password"

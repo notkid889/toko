@@ -100,7 +100,7 @@
 
 :root {
     --background:
-        oklch(97.2% 0 0);
+        oklch(0.989 0 0);
     --foreground:
         oklch(0.145 0 0);
     --card:
@@ -132,6 +132,8 @@
     --border:
         oklch(0.922 0 0);
     --input:
+        oklch(1 0 0);
+    --input-border:
         oklch(0.922 0 0);
     --ring:
         oklch(0.708 0 0);
@@ -199,6 +201,8 @@
     --border:
         oklch(1 0 0 / 10%);
     --input:
+        oklch(1 0 0 / 15%);
+    --input-border:
         oklch(1 0 0 / 15%);
     --ring:
         oklch(0.556 0 0);

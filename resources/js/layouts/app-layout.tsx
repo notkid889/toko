@@ -2,6 +2,7 @@ import { AppContent } from "@/components/app-content";
 import { AppSidebarHeader } from "@/components/app-sidebar-header";
 import { AppSidebar } from "@/components/Appsidebar";
 import { ConfirmProvider } from "@/components/confirm-provider";
+import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReactNode } from "react";
@@ -17,5 +18,7 @@ export default ({ children }: { children: ReactNode }) => (
                 </AppContent>
             </SidebarProvider>
         </TooltipProvider>
+        <Toaster position="top-right" richColors closeButton />
     </ConfirmProvider>
 );
+

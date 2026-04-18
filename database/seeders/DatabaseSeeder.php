@@ -23,6 +23,11 @@ class DatabaseSeeder extends Seeder
             'roles' => ['roles.view', 'roles.create', 'roles.edit', 'roles.delete'],
             'menus' => ['menus.view', 'menus.create', 'menus.edit', 'menus.delete'],
             'permissions' => ['permissions.view', 'permissions.create', 'permissions.edit', 'permissions.delete'],
+            'stock' => ['stock.view', 'stock.create', 'stock.edit', 'stock.delete'],
+            'categories' => ['categories.view', 'categories.create', 'categories.edit', 'categories.delete'],
+            'products' => ['products.view', 'products.create', 'products.edit', 'products.delete'],
+            'purchases' => ['purchases.view', 'purchases.create', 'purchases.delete'],
+            'sales' => ['sales.view', 'sales.create', 'sales.delete'],
         ];
 
         $allPermissions = [];
@@ -75,9 +80,67 @@ class DatabaseSeeder extends Seeder
             'parent_id' => $platform->id,
         ]);
 
+        // Transactions group
+        $transactions = Menu::create([
+            'name' => 'Transactions',
+            'order' => 2,
+        ]);
+
+        Menu::create([
+            'name' => 'Purchases',
+            'route' => '/purchases',
+            'icon' => 'ShoppingCart',
+            'order' => 0,
+            'permission_key' => 'purchases',
+            'parent_id' => $transactions->id,
+        ]);
+
+        Menu::create([
+            'name' => 'Sales',
+            'route' => '/sales',
+            'icon' => 'ShoppingBag',
+            'order' => 1,
+            'permission_key' => 'sales',
+            'parent_id' => $transactions->id,
+        ]);
+
+        Menu::create([
+            'name' => 'Stock',
+            'route' => '/stock',
+            'icon' => 'Package',
+            'order' => 2,
+            'permission_key' => 'stock',
+            'parent_id' => $transactions->id,
+        ]);
+
+        // Master Data group
+        $masterData = Menu::create([
+            'name' => 'Master Data',
+            'order' => 1,
+        ]);
+
+        Menu::create([
+            'name' => 'Categories',
+            'route' => '/categories',
+            'icon' => 'Tags',
+            'order' => 0,
+            'permission_key' => 'categories',
+            'parent_id' => $masterData->id,
+        ]);
+
+        Menu::create([
+            'name' => 'Products',
+            'route' => '/products',
+            'icon' => 'Package',
+            'order' => 1,
+            'permission_key' => 'products',
+            'parent_id' => $masterData->id,
+        ]);
+
+        // Management group
         $management = Menu::create([
             'name' => 'Management',
-            'order' => 1,
+            'order' => 3,
         ]);
 
         Menu::create([
