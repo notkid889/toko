@@ -26,39 +26,39 @@ export default function Edit({ category }: Props) {
 
     return (
         <AppLayout>
-            <Head title="Edit Category" />
+            <Head title="Edit Kategori" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Edit Category</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Edit Kategori</h1>
                     <p className="text-muted-foreground text-sm">
-                        Update the details of "{category.name}".
+                        Perbarui detail kategori "{category.name}".
                     </p>
                 </div>
 
                 <Card className="max-w-2xl">
                     <CardHeader>
-                        <CardTitle>Category Details</CardTitle>
+                        <CardTitle>Detail Kategori</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="name">Nama</Label>
                                 <Input
                                     id="name"
                                     value={data.name}
                                     onChange={(e) => setData('name', e.target.value)}
-                                    placeholder="e.g. Beverages"
+                                    placeholder="cth. Minuman"
                                 />
                                 <InputError message={errors.name} />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="description">Description</Label>
+                                <Label htmlFor="description">Deskripsi</Label>
                                 <Textarea
                                     id="description"
                                     value={data.description}
                                     onChange={(e) => setData('description', e.target.value)}
-                                    placeholder="Brief description of this category..."
+                                    placeholder="Deskripsi singkat kategori ini..."
                                     rows={3}
                                 />
                                 <InputError message={errors.description} />
@@ -66,14 +66,14 @@ export default function Edit({ category }: Props) {
 
                             <div className="flex items-center gap-2 pt-2">
                                 <Button type="submit" disabled={processing}>
-                                    {processing ? 'Saving...' : 'Update Category'}
+                                    {processing ? 'Menyimpan...' : 'Perbarui Kategori'}
                                 </Button>
                                 <Button
                                     type="button"
                                     variant="outline"
                                     onClick={() => router.visit('/categories')}
                                 >
-                                    Cancel
+                                    Batal
                                 </Button>
                             </div>
                         </form>

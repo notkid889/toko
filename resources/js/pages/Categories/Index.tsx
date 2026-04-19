@@ -21,7 +21,7 @@ type Props = {
 export default function Index({ categories }: Props) {
     return (
         <AppLayout>
-            <Head title="Categories" />
+            <Head title="Kategori" />
             <CategoryContent categories={categories} />
         </AppLayout>
     );
@@ -33,10 +33,10 @@ function CategoryContent({ categories }: Props) {
 
     async function handleDelete(category: CategoryModel) {
         const isConfirmed = await confirm({
-            title: 'Delete Category?',
-            description: `This will permanently remove the category "${category.name}" and all its products.`,
-            confirmText: 'Delete',
-            cancelText: 'Cancel',
+            title: 'Hapus Kategori?',
+            description: `Kategori "${category.name}" dan semua produknya akan dihapus secara permanen.`,
+            confirmText: 'Hapus',
+            cancelText: 'Batal',
         });
         if (!isConfirmed) return;
         router.delete(`/categories/${category.id}`, { preserveScroll: true });
@@ -46,14 +46,14 @@ function CategoryContent({ categories }: Props) {
         <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Categories</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Kategori</h1>
                     <p className="text-muted-foreground text-sm">
-                        Manage product categories for your store.
+                        Kelola kategori produk untuk toko Anda.
                     </p>
                 </div>
                 <Button size="default" onClick={() => router.visit('/categories/create')} >
                     <Plus className="mr-1 size-4" />
-                    Add Category
+                    Tambah Kategori
                 </Button>
             </div>
 
@@ -61,18 +61,18 @@ function CategoryContent({ categories }: Props) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Category</TableHead>
-                            <TableHead>Description</TableHead>
-                            <TableHead className="text-center">Products</TableHead>
-                            <TableHead>Created</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead>Kategori</TableHead>
+                            <TableHead>Deskripsi</TableHead>
+                            <TableHead className="text-center">Produk</TableHead>
+                            <TableHead>Dibuat</TableHead>
+                            <TableHead className="text-right">Aksi</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {categories.length === 0 && (
                             <TableRow>
                                 <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
-                                    No categories yet. Click "Add Category" to create one.
+                                    Belum ada kategori. Klik "Tambah Kategori" untuk membuat.
                                 </TableCell>
                             </TableRow>
                         )}

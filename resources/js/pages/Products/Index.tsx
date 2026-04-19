@@ -37,7 +37,7 @@ type Props = {
 export default function Index({ products, categories, filters, summary }: Props) {
     return (
         <AppLayout>
-            <Head title="Products" />
+            <Head title="Produk" />
             <ProductContent products={products} categories={categories} filters={filters} summary={summary} />
         </AppLayout>
     );
@@ -80,10 +80,10 @@ function ProductContent({ products, categories, filters, summary }: Props) {
 
     async function handleDelete(product: ProductModel) {
         const isConfirmed = await confirm({
-            title: 'Delete Product?',
-            description: `This will permanently remove "${product.name}" from your inventory.`,
-            confirmText: 'Delete',
-            cancelText: 'Cancel',
+            title: 'Hapus Produk?',
+            description: `Produk "${product.name}" akan dihapus secara permanen dari inventori Anda.`,
+            confirmText: 'Hapus',
+            cancelText: 'Batal',
         });
         if (!isConfirmed) return;
         router.delete(`/products/${product.id}`, { preserveScroll: true });
@@ -104,14 +104,14 @@ function ProductContent({ products, categories, filters, summary }: Props) {
         <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Products</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Produk</h1>
                     <p className="text-muted-foreground text-sm">
-                        Manage your store inventory. {products.total} product{products.total !== 1 ? 's' : ''} total.
+                        Kelola inventori toko Anda. Total {products.total} produk.
                     </p>
                 </div>
                 <Button size="sm" onClick={() => router.visit('/products/create')}>
                     <Plus className="mr-1 size-4" />
-                    Add Product
+                    Tambah Produk
                 </Button>
             </div>
             {/* Summary Cards */}
@@ -122,7 +122,7 @@ function ProductContent({ products, categories, filters, summary }: Props) {
                             <Box className="size-5 text-blue-500" />
                         </div>
                         <div>
-                            <p className="text-xs text-muted-foreground">Total Products</p>
+                            <p className="text-xs text-muted-foreground">Total Produk</p>
                             <p className="text-xl font-bold tabular-nums">{formatNumber(summary.total_products)}</p>
                         </div>
                     </div>
@@ -133,7 +133,7 @@ function ProductContent({ products, categories, filters, summary }: Props) {
                             <Warehouse className="size-5 text-emerald-500" />
                         </div>
                         <div>
-                            <p className="text-xs text-muted-foreground">Stock Value</p>
+                            <p className="text-xs text-muted-foreground">Nilai Stok</p>
                             <p className="text-sm md:text-lg font-bold tabular-nums">{formatPrice(summary.total_value)}</p>
                         </div>
                     </div>
@@ -146,7 +146,7 @@ function ProductContent({ products, categories, filters, summary }: Props) {
                     <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         id="search-products"
-                        placeholder="Search products..."
+                        placeholder="Cari produk..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="pl-8"
@@ -158,10 +158,10 @@ function ProductContent({ products, categories, filters, summary }: Props) {
                     onValueChange={handleCategoryFilter}
                 >
                     <SelectTrigger className="w-48" id="filter-category">
-                        <SelectValue placeholder="All Categories" />
+                        <SelectValue placeholder="Semua Kategori" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">All Categories</SelectItem>
+                        <SelectItem value="all">Semua Kategori</SelectItem>
                         {categories.map((cat) => (
                             <SelectItem key={cat.id} value={String(cat.id)}>
                                 {cat.name}
@@ -176,20 +176,20 @@ function ProductContent({ products, categories, filters, summary }: Props) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Product</TableHead>
+                            <TableHead>Produk</TableHead>
                             <TableHead>SKU</TableHead>
-                            <TableHead>Category</TableHead>
-                            <TableHead className="text-right">Buy Price</TableHead>
-                            <TableHead className="text-center">Stock</TableHead>
+                            <TableHead>Kategori</TableHead>
+                            <TableHead className="text-right">Harga Beli</TableHead>
+                            <TableHead className="text-center">Stok</TableHead>
                             <TableHead className="text-center">Status</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead className="text-right">Aksi</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {products.data.length === 0 && (
                             <TableRow>
                                 <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
-                                    No products found.
+                                    Produk tidak ditemukan.
                                 </TableCell>
                             </TableRow>
                         )}
@@ -226,7 +226,7 @@ function ProductContent({ products, categories, filters, summary }: Props) {
                                 </TableCell>
                                 <TableCell className="text-center">
                                     <Badge variant={product.is_active ? 'default' : 'secondary'}>
-                                        {product.is_active ? 'Active' : 'Inactive'}
+                                        {product.is_active ? 'Aktif' : 'Nonaktif'}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right">
@@ -258,7 +258,7 @@ function ProductContent({ products, categories, filters, summary }: Props) {
             {products.last_page > 1 && (
                 <div className="flex items-center justify-between px-2">
                     <p className="text-sm text-muted-foreground">
-                        Showing {products.from} to {products.to} of {products.total} results
+                        Menampilkan {products.from} sampai {products.to} dari {products.total} data
                     </p>
                     <div className="flex items-center gap-1">
                         {products.links.map((link, index) => (

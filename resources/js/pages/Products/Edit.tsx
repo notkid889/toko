@@ -95,18 +95,18 @@ export default function Edit({ product, categories: initialCategories }: Props) 
 
     return (
         <AppLayout>
-            <Head title="Edit Product" />
+            <Head title="Edit Produk" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Edit Product</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Edit Produk</h1>
                     <p className="text-muted-foreground text-sm">
-                        Update the details of "{product.name}".
+                        Perbarui detail produk "{product.name}".
                     </p>
                 </div>
 
                 <Card className="max-w-2xl">
                     <CardHeader>
-                        <CardTitle>Product Details</CardTitle>
+                        <CardTitle>Detail Produk</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
@@ -117,7 +117,7 @@ export default function Edit({ product, categories: initialCategories }: Props) 
                                         <Package className="size-4 text-primary" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-muted-foreground">Current Stock</p>
+                                        <p className="text-xs text-muted-foreground">Stok Saat Ini</p>
                                         <p className="text-lg font-semibold tabular-nums">
                                             <span className={product.stock <= 10 ? 'text-destructive' : ''}>
                                                 {product.stock}
@@ -131,7 +131,7 @@ export default function Edit({ product, categories: initialCategories }: Props) 
                                         <DollarSign className="size-4 text-primary" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-muted-foreground">Buy Price</p>
+                                        <p className="text-xs text-muted-foreground">Harga Beli</p>
                                         <p className="text-lg font-semibold tabular-nums">
                                             {formatPrice(product.price)}
                                         </p>
@@ -141,12 +141,12 @@ export default function Edit({ product, categories: initialCategories }: Props) 
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="name">Name</Label>
+                                    <Label htmlFor="name">Nama</Label>
                                     <Input
                                         id="name"
                                         value={data.name}
                                         onChange={(e) => setData('name', e.target.value)}
-                                        placeholder="e.g. Mineral Water 600ml"
+                                        placeholder="cth. Air Mineral 600ml"
                                     />
                                     <InputError message={errors.name} />
                                 </div>
@@ -157,39 +157,39 @@ export default function Edit({ product, categories: initialCategories }: Props) 
                                         id="sku"
                                         value={data.sku}
                                         onChange={(e) => setData('sku', e.target.value)}
-                                        placeholder="e.g. BEV-001"
+                                        placeholder="cth. BEV-001"
                                     />
                                     <InputError message={errors.sku} />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="category_id">Category</Label>
+                                <Label htmlFor="category_id">Kategori</Label>
                                 <CategoryCombobox
                                     id="category_id"
                                     options={categoryOptions}
                                     value={data.category_id}
                                     onChange={(value) => setData('category_id', value)}
                                     onCreateNew={handleCreateCategory}
-                                    placeholder="Search or create category..."
+                                    placeholder="Cari atau buat kategori..."
                                 />
                                 <InputError message={errors.category_id} />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="description">Description</Label>
+                                <Label htmlFor="description">Deskripsi</Label>
                                 <Textarea
                                     id="description"
                                     value={data.description}
                                     onChange={(e) => setData('description', e.target.value)}
-                                    placeholder="Product description..."
+                                    placeholder="Deskripsi produk..."
                                     rows={3}
                                 />
                                 <InputError message={errors.description} />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="unit">Unit</Label>
+                                <Label htmlFor="unit">Satuan</Label>
                                 <Input
                                     id="unit"
                                     value={data.unit}
@@ -202,7 +202,7 @@ export default function Edit({ product, categories: initialCategories }: Props) 
 
                             {/* Image Upload */}
                             <div className="space-y-2">
-                                <Label>Product Image</Label>
+                                <Label>Gambar Produk</Label>
                                 <div className="flex items-start gap-4">
                                     <img
                                         src={currentImage}
@@ -223,13 +223,13 @@ export default function Edit({ product, categories: initialCategories }: Props) 
                                             size="sm"
                                             onClick={() => fileInputRef.current?.click()}
                                         >
-                                            {product.image ? 'Replace Image' : 'Choose Image'}
+                                            {product.image ? 'Ganti Gambar' : 'Pilih Gambar'}
                                         </Button>
                                         <p className="text-xs text-muted-foreground">
-                                            JPG, PNG, or WebP. Max 2MB.
+                                            JPG, PNG, atau WebP. Maks 2MB.
                                         </p>
                                         {preview && (
-                                            <p className="text-xs text-primary">New image selected</p>
+                                            <p className="text-xs text-primary">Gambar baru dipilih</p>
                                         )}
                                     </div>
                                 </div>
@@ -239,9 +239,9 @@ export default function Edit({ product, categories: initialCategories }: Props) 
                             {/* Active Toggle */}
                             <div className="flex items-center justify-between rounded-lg border p-3">
                                 <div className="space-y-0.5">
-                                    <Label htmlFor="is_active">Active</Label>
+                                    <Label htmlFor="is_active">Aktif</Label>
                                     <p className="text-xs text-muted-foreground">
-                                        Product will be visible in the store when active.
+                                        Produk akan terlihat di toko saat aktif.
                                     </p>
                                 </div>
                                 <Switch
@@ -253,14 +253,14 @@ export default function Edit({ product, categories: initialCategories }: Props) 
 
                             <div className="flex items-center gap-2 pt-2">
                                 <Button type="submit" disabled={processing}>
-                                    {processing ? 'Saving...' : 'Update Product'}
+                                    {processing ? 'Menyimpan...' : 'Perbarui Produk'}
                                 </Button>
                                 <Button
                                     type="button"
                                     variant="outline"
                                     onClick={() => router.visit('/products')}
                                 >
-                                    Cancel
+                                    Batal
                                 </Button>
                             </div>
                         </form>

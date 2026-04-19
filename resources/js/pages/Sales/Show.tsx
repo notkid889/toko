@@ -23,25 +23,25 @@ export default function Show({ sale }: Props) {
 
     return (
         <AppLayout>
-            <Head title={`Sale ${sale.invoice_number}`} />
+            <Head title={`Penjualan ${sale.invoice_number}`} />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Sale Detail</h1>
+                        <h1 className="text-2xl font-bold tracking-tight">Detail Penjualan</h1>
                         <p className="text-muted-foreground text-sm">
                             Invoice: {sale.invoice_number}
                         </p>
                     </div>
                     <Button variant="outline" size="sm" onClick={() => router.visit('/sales')}>
                         <ArrowLeft className="mr-1 size-4" />
-                        Back
+                        Kembali
                     </Button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
                     <Card>
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Customer</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Pelanggan</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <p className="text-lg font-semibold">{sale.customer || '—'}</p>
@@ -49,7 +49,7 @@ export default function Show({ sale }: Props) {
                     </Card>
                     <Card>
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Date</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Tanggal</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <p className="text-lg font-semibold">
@@ -70,7 +70,7 @@ export default function Show({ sale }: Props) {
                 {sale.notes && (
                     <Card className="max-w-4xl">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Notes</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Catatan</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm">{sale.notes}</p>
@@ -80,17 +80,17 @@ export default function Show({ sale }: Props) {
 
                 <Card className="max-w-4xl">
                     <CardHeader>
-                        <CardTitle>Items</CardTitle>
+                        <CardTitle>Item</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Product</TableHead>
+                                        <TableHead>Produk</TableHead>
                                         <TableHead>SKU</TableHead>
-                                        <TableHead className="text-center">Qty</TableHead>
-                                        <TableHead className="text-right">Price/Unit</TableHead>
+                                        <TableHead className="text-center">Jml</TableHead>
+                                        <TableHead className="text-right">Harga/Unit</TableHead>
                                         <TableHead className="text-right">Subtotal</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -98,7 +98,7 @@ export default function Show({ sale }: Props) {
                                     {sale.items?.map((item) => (
                                         <TableRow key={item.id}>
                                             <TableCell className="font-medium">
-                                                {item.product?.name || 'Deleted Product'}
+                                                {item.product?.name || 'Produk Dihapus'}
                                             </TableCell>
                                             <TableCell>
                                                 <code className="text-xs rounded bg-muted px-1.5 py-0.5">
@@ -112,7 +112,7 @@ export default function Show({ sale }: Props) {
                                     ))}
                                     <TableRow>
                                         <TableCell colSpan={4} className="text-right font-bold">
-                                            Grand Total
+                                            Total Keseluruhan
                                         </TableCell>
                                         <TableCell className="text-right font-bold tabular-nums text-lg">
                                             {formatPrice(sale.total)}

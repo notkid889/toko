@@ -28,6 +28,8 @@ class DatabaseSeeder extends Seeder
             'products' => ['products.view', 'products.create', 'products.edit', 'products.delete'],
             'purchases' => ['purchases.view', 'purchases.create', 'purchases.delete'],
             'sales' => ['sales.view', 'sales.create', 'sales.delete'],
+            'finance' => ['finance.view', 'finance.create', 'finance.delete'],
+            'reports' => ['reports.view', 'reports.create', 'reports.delete'],
         ];
 
         $allPermissions = [];
@@ -61,7 +63,7 @@ class DatabaseSeeder extends Seeder
         $admin = User::create([
             'name' => 'Administrator',
             'username' => 'admin',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('admin123'),
         ]);
         $admin->roles()->attach($superAdmin->id);
 
@@ -82,12 +84,12 @@ class DatabaseSeeder extends Seeder
 
         // Transactions group
         $transactions = Menu::create([
-            'name' => 'Transactions',
-            'order' => 2,
+            'name' => 'Transaksi',
+            'order' => 1,
         ]);
 
         Menu::create([
-            'name' => 'Purchases',
+            'name' => 'Pembelian',
             'route' => '/purchases',
             'icon' => 'ShoppingCart',
             'order' => 0,
@@ -96,7 +98,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Menu::create([
-            'name' => 'Sales',
+            'name' => 'Penjualan',
             'route' => '/sales',
             'icon' => 'ShoppingBag',
             'order' => 1,
@@ -105,7 +107,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Menu::create([
-            'name' => 'Stock',
+            'name' => 'Stok',
             'route' => '/stock',
             'icon' => 'Package',
             'order' => 2,
@@ -113,14 +115,38 @@ class DatabaseSeeder extends Seeder
             'parent_id' => $transactions->id,
         ]);
 
-        // Master Data group
-        $masterData = Menu::create([
-            'name' => 'Master Data',
-            'order' => 1,
+        // Report group
+        $report = Menu::create([
+            'name' => 'Laporan',
+            'order' => 2,
         ]);
 
         Menu::create([
-            'name' => 'Categories',
+            'name' => 'Laba Rugi',
+            'route' => '/finance',
+            'icon' => 'DollarSign',
+            'order' => 0,
+            'permission_key' => 'finance',
+            'parent_id' => $report->id,
+        ]);
+
+        Menu::create([
+            'name' => 'Laporan Penjualan',
+            'route' => '/reports',
+            'icon' => 'ChartBar',
+            'order' => 1,
+            'permission_key' => 'sales',
+            'parent_id' => $report->id,
+        ]);
+
+        // Master Data group
+        $masterData = Menu::create([
+            'name' => 'Master Data',
+            'order' => 3,
+        ]);
+
+        Menu::create([
+            'name' => 'Kategori',
             'route' => '/categories',
             'icon' => 'Tags',
             'order' => 0,
@@ -129,7 +155,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Menu::create([
-            'name' => 'Products',
+            'name' => 'Produk',
             'route' => '/products',
             'icon' => 'Package',
             'order' => 1,
@@ -140,7 +166,7 @@ class DatabaseSeeder extends Seeder
         // Management group
         $management = Menu::create([
             'name' => 'Management',
-            'order' => 3,
+            'order' => 4,
         ]);
 
         Menu::create([

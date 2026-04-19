@@ -37,14 +37,7 @@ class SaleController extends Controller
 
     public function create(): Response
     {
-        $products = Product::where('is_active', true)
-            ->where('stock', '>', 0)
-            ->orderBy('name')
-            ->get(['id', 'name', 'sku', 'price', 'stock', 'unit']);
-
-        return Inertia::render('Sales/Create', [
-            'products' => $products,
-        ]);
+        return Inertia::render('Sales/Create');
     }
 
     public function store(StoreSaleRequest $request): RedirectResponse

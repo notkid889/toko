@@ -37,13 +37,7 @@ class PurchaseController extends Controller
 
     public function create(): Response
     {
-        $products = Product::where('is_active', true)
-            ->orderBy('name')
-            ->get(['id', 'name', 'sku', 'price', 'stock', 'unit']);
-
-        return Inertia::render('Purchases/Create', [
-            'products' => $products,
-        ]);
+        return Inertia::render('Purchases/Create');
     }
 
     public function store(StorePurchaseRequest $request): RedirectResponse

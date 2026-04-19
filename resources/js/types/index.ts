@@ -166,3 +166,71 @@ export interface ProductOption {
     stock: number;
     unit: string;
 }
+
+// Report types
+export interface ReportSummary {
+    total_sales: number;
+    total_purchases: number;
+    sales_count: number;
+    purchases_count: number;
+}
+
+export interface SalesTrendItem {
+    date: string;
+    label: string;
+    total: number;
+}
+
+export interface TopProduct {
+    id: number;
+    name: string;
+    sku: string;
+    quantity_sold: number;
+    revenue: number;
+}
+
+export interface RecentTransaction {
+    id: number;
+    type: 'sale' | 'purchase';
+    invoice_number: string;
+    party: string | null;
+    total: number;
+    date: string;
+    created_at: string;
+}
+
+// Finance types
+export interface FinanceSummary {
+    total_income: number;
+    total_expense: number;
+    gross_profit: number;
+    margin_percentage: number;
+}
+
+export interface MonthlyComparison {
+    month: string;
+    label: string;
+    income: number;
+    expense: number;
+    profit: number;
+}
+
+export interface ProductProfit {
+    id: number;
+    name: string;
+    sku: string;
+    revenue: number;
+    cost: number;
+    profit: number;
+    margin: number;
+    quantity_sold: number;
+}
+
+export interface CashFlowItem {
+    date: string;
+    label: string;
+    income: number;
+    expense: number;
+    net: number;
+}
+

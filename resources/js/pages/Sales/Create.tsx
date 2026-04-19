@@ -6,13 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import {
     Table,
     TableBody,
     TableCell,
@@ -23,11 +16,8 @@ import {
 import InputError from '@/components/ui/input-errors';
 import { ProductOption } from '@/types';
 import { Plus, Trash2 } from 'lucide-react';
-import { FormEvent, useState } from 'react';
-
-type Props = {
-    products: ProductOption[];
-};
+import { FormEvent, useRef, useState } from 'react';
+import { ProductCombobox } from '@/components/ui/product-combobox';
 
 type ItemRow = {
     product_id: string;
@@ -35,7 +25,7 @@ type ItemRow = {
     price: string;
 };
 
-export default function Create({ products }: Props) {
+export default function Create() {
     const { data, setData, post, processing, errors } = useForm<{
         customer: string;
         notes: string;
@@ -49,6 +39,8 @@ export default function Create({ products }: Props) {
     });
 
     const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
+    // Store product data (stock, price) by product_id for display
+    const productDataRef = useRef<Map<string, ProductOption>>(new Map());
 
     function addItem() {
         setData('items', [...data.items, { product_id: '', quantity: '1', price: '' }]);
@@ -71,14 +63,6 @@ export default function Create({ products }: Props) {
         const oldProductId = newItems[index].product_id;
         newItems[index] = { ...newItems[index], [field]: value };
 
-        // Auto-fill price from product's sell price when selecting a product
-        if (field === 'product_id') {
-            const product = products.find((p) => String(p.id) === value);
-            if (product && !newItems[index].price) {
-                newItems[index].price = String(product.price);
-            }
-        }
-
         setData('items', newItems);
 
         if (field === 'product_id') {
@@ -89,9 +73,28 @@ export default function Create({ products }: Props) {
         }
     }
 
+    function handleProductSelect(index: number, product: ProductOption) {
+        productDataRef.current.set(String(product.id), product);
+
+        // Auto-fill price from product's sell price
+        const newItems = [...data.items];
+        newItems[index] = {
+            ...newItems[index],
+            product_id: String(product.id),
+            price: newItems[index].price || String(product.price),
+        };
+
+        const newSet = new Set(selectedProducts);
+        const oldProductId = data.items[index].product_id;
+        if (oldProductId) newSet.delete(oldProductId);
+        newSet.add(String(product.id));
+        setSelectedProducts(newSet);
+
+        setData('items', newItems);
+    }
+
     function getProductStock(productId: string): number {
-        const product = products.find((p) => String(p.id) === productId);
-        return product?.stock ?? 0;
+        return productDataRef.current.get(productId)?.stock ?? 0;
     }
 
     function getTotal() {
@@ -112,34 +115,34 @@ export default function Create({ products }: Props) {
 
     return (
         <AppLayout>
-            <Head title="New Sale" />
+            <Head title="Penjualan Baru" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">New Sale</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Penjualan Baru</h1>
                     <p className="text-muted-foreground text-sm">
-                        Record a new product sale to a customer.
+                        Catat penjualan produk baru ke pelanggan.
                     </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4 max-w-4xl">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Sale Details</CardTitle>
+                            <CardTitle>Detail Penjualan</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="customer">Customer</Label>
+                                    <Label htmlFor="customer">Pelanggan</Label>
                                     <Input
                                         id="customer"
                                         value={data.customer}
                                         onChange={(e) => setData('customer', e.target.value)}
-                                        placeholder="Customer name (optional)"
+                                        placeholder="Nama pelanggan (opsional)"
                                     />
                                     <InputError message={errors.customer} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="date">Date</Label>
+                                    <Label htmlFor="date">Tanggal</Label>
                                     <Input
                                         id="date"
                                         type="date"
@@ -150,12 +153,12 @@ export default function Create({ products }: Props) {
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="notes">Notes</Label>
+                                <Label htmlFor="notes">Catatan</Label>
                                 <Textarea
                                     id="notes"
                                     value={data.notes}
                                     onChange={(e) => setData('notes', e.target.value)}
-                                    placeholder="Optional notes..."
+                                    placeholder="Catatan opsional..."
                                     rows={2}
                                 />
                                 <InputError message={errors.notes} />
@@ -165,10 +168,10 @@ export default function Create({ products }: Props) {
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle>Items</CardTitle>
+                            <CardTitle>Item</CardTitle>
                             <Button type="button" variant="outline" size="sm" onClick={addItem}>
                                 <Plus className="mr-1 size-4" />
-                                Add Item
+                                Tambah Item
                             </Button>
                         </CardHeader>
                         <CardContent>
@@ -177,10 +180,10 @@ export default function Create({ products }: Props) {
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="w-[35%]">Product</TableHead>
-                                            <TableHead className="w-[10%] text-center">Stock</TableHead>
-                                            <TableHead className="w-[13%]">Qty</TableHead>
-                                            <TableHead className="w-[18%]">Price/Unit</TableHead>
+                                            <TableHead className="w-[35%]">Produk</TableHead>
+                                            <TableHead className="w-[10%] text-center">Stok</TableHead>
+                                            <TableHead className="w-[13%]">Jml</TableHead>
+                                            <TableHead className="w-[18%]">Harga/Unit</TableHead>
                                             <TableHead className="w-[18%] text-right">Subtotal</TableHead>
                                             <TableHead className="w-[6%]" />
                                         </TableRow>
@@ -193,23 +196,14 @@ export default function Create({ products }: Props) {
                                             return (
                                                 <TableRow key={index}>
                                                     <TableCell>
-                                                        <Select
+                                                        <ProductCombobox
                                                             value={item.product_id}
-                                                            onValueChange={(v) => updateItem(index, 'product_id', v)}
-                                                        >
-                                                            <SelectTrigger className="w-full">
-                                                                <SelectValue placeholder="Select product" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {products
-                                                                    .filter((p) => !selectedProducts.has(String(p.id)) || String(p.id) === item.product_id)
-                                                                    .map((p) => (
-                                                                        <SelectItem key={p.id} value={String(p.id)}>
-                                                                            {p.name} ({p.sku})
-                                                                        </SelectItem>
-                                                                    ))}
-                                                            </SelectContent>
-                                                        </Select>
+                                                            onChange={(v) => updateItem(index, 'product_id', v)}
+                                                            onProductSelect={(p) => handleProductSelect(index, p)}
+                                                            excludeIds={selectedProducts}
+                                                            showStock
+                                                            inStockOnly
+                                                        />
                                                         <InputError message={(errors as any)[`items.${index}.product_id`]} />
                                                     </TableCell>
                                                     <TableCell className="text-center">
@@ -231,7 +225,7 @@ export default function Create({ products }: Props) {
                                                             className={isOverStock ? 'border-destructive' : ''}
                                                         />
                                                         {isOverStock && (
-                                                            <p className="text-xs text-destructive mt-0.5">Exceeds stock</p>
+                                                            <p className="text-xs text-destructive mt-0.5">Melebihi stok</p>
                                                         )}
                                                         <InputError message={(errors as any)[`items.${index}.quantity`]} />
                                                     </TableCell>
@@ -269,7 +263,7 @@ export default function Create({ products }: Props) {
 
                             <div className="mt-4 flex justify-end">
                                 <div className="text-right">
-                                    <p className="text-sm text-muted-foreground">Grand Total</p>
+                                    <p className="text-sm text-muted-foreground">Total Keseluruhan</p>
                                     <p className="text-2xl font-bold tabular-nums">{formatPrice(getTotal())}</p>
                                 </div>
                             </div>
@@ -278,10 +272,10 @@ export default function Create({ products }: Props) {
 
                     <div className="flex items-center gap-2">
                         <Button type="submit" disabled={processing}>
-                            {processing ? 'Saving...' : 'Record Sale'}
+                            {processing ? 'Menyimpan...' : 'Simpan Penjualan'}
                         </Button>
                         <Button type="button" variant="outline" onClick={() => router.visit('/sales')}>
-                            Cancel
+                            Batal
                         </Button>
                     </div>
                 </form>

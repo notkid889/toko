@@ -26,7 +26,7 @@ export default function NavMenu() {
     const isActive = (route: string) => {
         if (!route) return false;
         if (route === '/') return url === '/';
-        return url === route || url.startsWith(`${route}/`);
+        return url === route || url.startsWith(`${route}`);
     };
 
     return (

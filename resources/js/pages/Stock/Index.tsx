@@ -86,7 +86,7 @@ type Props = {
 export default function StockIndex({ products, summary, categories, filters }: Props) {
     return (
         <AppLayout>
-            <Head title="Stock Management" />
+            <Head title="Manajemen Stok" />
             <StockContent products={products} summary={summary} categories={categories} filters={filters} />
         </AppLayout>
     );
@@ -138,20 +138,20 @@ function StockContent({ products, summary, categories, filters }: Props) {
             return (
                 <Badge variant="destructive" className="gap-1">
                     <PackageX className="size-3" />
-                    Out of Stock
+                    Stok Habis
                 </Badge>
             );
         if (stock <= 10)
             return (
                 <Badge variant="outline" className="gap-1 border-amber-500/50 text-amber-600 dark:text-amber-400">
                     <AlertTriangle className="size-3" />
-                    Low Stock
+                    Stok Rendah
                 </Badge>
             );
         return (
             <Badge variant="outline" className="gap-1 border-emerald-500/50 text-emerald-600 dark:text-emerald-400">
                 <Package className="size-3" />
-                Healthy
+                Sehat
             </Badge>
         );
     }
@@ -161,19 +161,19 @@ function StockContent({ products, summary, categories, filters }: Props) {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Stock Management</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Manajemen Stok</h1>
                     <p className="text-muted-foreground text-sm">
-                        Monitor inventory levels and stock movements.
+                        Pantau level inventori dan pergerakan stok.
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
                     <Button variant="outline" onClick={() => router.visit('/purchases/create')}>
                         <Truck className="mr-1 size-4" />
-                        New Purchase
+                        Pembelian Baru
                     </Button>
                     <Button onClick={() => router.visit('/sales/create')}>
                         <ShoppingCart className="mr-1 size-4" />
-                        New Sale
+                        Penjualan Baru
                     </Button>
                 </div>
             </div>
@@ -186,7 +186,7 @@ function StockContent({ products, summary, categories, filters }: Props) {
                             <Box className="size-5 text-blue-500" />
                         </div>
                         <div>
-                            <p className="text-xs text-muted-foreground">Total Products</p>
+                            <p className="text-xs text-muted-foreground">Total Produk</p>
                             <p className="text-xl font-bold tabular-nums">{formatNumber(summary.total_products)}</p>
                         </div>
                     </div>
@@ -197,7 +197,7 @@ function StockContent({ products, summary, categories, filters }: Props) {
                             <Warehouse className="size-5 text-emerald-500" />
                         </div>
                         <div>
-                            <p className="text-xs text-muted-foreground">Stock Value</p>
+                            <p className="text-xs text-muted-foreground">Nilai Stok</p>
                             <p className="text-sm md:text-lg font-bold tabular-nums">{formatPrice(summary.total_value)}</p>
                         </div>
                     </div>
@@ -211,7 +211,7 @@ function StockContent({ products, summary, categories, filters }: Props) {
                             <AlertTriangle className="size-5 text-amber-500" />
                         </div>
                         <div>
-                            <p className="text-xs text-muted-foreground">Low Stock</p>
+                            <p className="text-xs text-muted-foreground">Stok Rendah</p>
                             <p className="text-xl font-bold tabular-nums">{formatNumber(summary.low_stock)}</p>
                         </div>
                     </div>
@@ -225,7 +225,7 @@ function StockContent({ products, summary, categories, filters }: Props) {
                             <PackageX className="size-5 text-red-500" />
                         </div>
                         <div>
-                            <p className="text-xs text-muted-foreground">Out of Stock</p>
+                            <p className="text-xs text-muted-foreground">Stok Habis</p>
                             <p className="text-xl font-bold tabular-nums">{formatNumber(summary.out_of_stock)}</p>
                         </div>
                     </div>
@@ -238,7 +238,7 @@ function StockContent({ products, summary, categories, filters }: Props) {
                     <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         id="search-stock"
-                        placeholder="Search by name or SKU..."
+                        placeholder="Cari nama atau SKU..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="pl-8"
@@ -250,10 +250,10 @@ function StockContent({ products, summary, categories, filters }: Props) {
                     onValueChange={(v) => applyFilters({ category: v === 'all' ? '' : v })}
                 >
                     <SelectTrigger className="w-44" id="filter-stock-category">
-                        <SelectValue placeholder="All Categories" />
+                        <SelectValue placeholder="Semua Kategori" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">All Categories</SelectItem>
+                        <SelectItem value="all">Semua Kategori</SelectItem>
                         {categories.map((cat) => (
                             <SelectItem key={cat.id} value={String(cat.id)}>
                                 {cat.name}
@@ -267,13 +267,13 @@ function StockContent({ products, summary, categories, filters }: Props) {
                     onValueChange={(v) => applyFilters({ status: v === 'all' ? '' : v })}
                 >
                     <SelectTrigger className="w-40" id="filter-stock-status">
-                        <SelectValue placeholder="All Status" />
+                        <SelectValue placeholder="Semua Status" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">All Status</SelectItem>
-                        <SelectItem value="out">Out of Stock</SelectItem>
-                        <SelectItem value="low">Low Stock</SelectItem>
-                        <SelectItem value="healthy">Healthy</SelectItem>
+                        <SelectItem value="all">Semua Status</SelectItem>
+                        <SelectItem value="out">Stok Habis</SelectItem>
+                        <SelectItem value="low">Stok Rendah</SelectItem>
+                        <SelectItem value="healthy">Sehat</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
@@ -283,20 +283,20 @@ function StockContent({ products, summary, categories, filters }: Props) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Product</TableHead>
+                            <TableHead>Produk</TableHead>
                             <TableHead>SKU</TableHead>
-                            <TableHead>Category</TableHead>
-                            <TableHead className="text-right">Buy Price</TableHead>
+                            <TableHead>Kategori</TableHead>
+                            <TableHead className="text-right">Harga Beli</TableHead>
                             <TableHead className="text-center">
                                 <span className="inline-flex items-center gap-1">
                                     <ArrowDownToLine className="size-3 text-emerald-500" />
-                                    In
+                                    Masuk
                                 </span>
                             </TableHead>
                             <TableHead className="text-center">
                                 <span className="inline-flex items-center gap-1">
                                     <ArrowUpFromLine className="size-3 text-red-500" />
-                                    Out
+                                    Keluar
                                 </span>
                             </TableHead>
                             <TableHead className="text-center">
@@ -305,16 +305,16 @@ function StockContent({ products, summary, categories, filters }: Props) {
                                     Adj
                                 </span>
                             </TableHead>
-                            <TableHead className="text-center">Stock</TableHead>
+                            <TableHead className="text-center">Stok</TableHead>
                             <TableHead className="text-center">Status</TableHead>
-                            <TableHead className="text-center">Action</TableHead>
+                            <TableHead className="text-center">Aksi</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {products.data.length === 0 && (
                             <TableRow>
                                 <TableCell colSpan={10} className="py-8 text-center text-muted-foreground">
-                                    No products found matching your filters.
+                                    Produk tidak ditemukan sesuai filter.
                                 </TableCell>
                             </TableRow>
                         )}
@@ -372,26 +372,26 @@ function StockContent({ products, summary, categories, filters }: Props) {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            title="Adjustment History"
+                                            title="Riwayat Penyesuaian"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setHistoryProduct(product);
                                             }}
                                         >
                                             <History className="size-3.5" />
-                                            History
+                                            Riwayat
                                         </Button>
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            title="Adjustment"
+                                            title="Penyesuaian"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setAdjustProduct(product);
                                             }}
                                         >
                                             <SlidersHorizontal className="size-3.5" />
-                                            Adjust
+                                            Sesuaikan
                                         </Button>
                                     </div>
                                 </TableCell>
@@ -405,7 +405,7 @@ function StockContent({ products, summary, categories, filters }: Props) {
             {products.last_page > 1 && (
                 <div className="flex items-center justify-between px-2">
                     <p className="text-sm text-muted-foreground">
-                        Showing {products.from} to {products.to} of {products.total} products
+                        Menampilkan {products.from} sampai {products.to} dari {products.total} produk
                     </p>
                     <div className="flex items-center gap-1">
                         {products.links.map((link, index) => (
@@ -495,12 +495,12 @@ function AdjustmentDialog({
         <Dialog open={!!product} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Stock Adjustment</DialogTitle>
+                    <DialogTitle>Penyesuaian Stok</DialogTitle>
                     <DialogDescription>
                         {product && (
                             <>
-                                Adjust stock for <strong>{product.name}</strong>.
-                                Current stock: <strong>{product.stock} {product.unit}</strong>
+                                Sesuaikan stok untuk <strong>{product.name}</strong>.
+                                Stok saat ini: <strong>{product.stock} {product.unit}</strong>
                             </>
                         )}
                     </DialogDescription>
@@ -518,7 +518,7 @@ function AdjustmentDialog({
                                 }`}
                         >
                             <Plus className="size-4" />
-                            Add Stock
+                            Tambah Stok
                         </button>
                         <button
                             type="button"
@@ -529,20 +529,20 @@ function AdjustmentDialog({
                                 }`}
                         >
                             <Minus className="size-4" />
-                            Remove Stock
+                            Kurangi Stok
                         </button>
                     </div>
 
                     {/* Quantity */}
                     <div className="space-y-2">
-                        <Label htmlFor="adj-quantity">Quantity</Label>
+                        <Label htmlFor="adj-quantity">Jumlah</Label>
                         <Input
                             id="adj-quantity"
                             type="number"
                             min="1"
                             value={data.quantity}
                             onChange={(e) => setData('quantity', e.target.value)}
-                            placeholder="Enter quantity"
+                            placeholder="Masukkan jumlah"
                             autoFocus
                         />
                         <InputError message={errors.quantity} />
@@ -550,17 +550,17 @@ function AdjustmentDialog({
 
                     {/* Type */}
                     <div className="space-y-2">
-                        <Label htmlFor="adj-type">Reason</Label>
+                        <Label htmlFor="adj-type">Alasan</Label>
                         <Select value={data.type} onValueChange={(v) => setData('type', v)}>
                             <SelectTrigger id="adj-type">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="correction">Inventory Correction</SelectItem>
-                                <SelectItem value="damage">Damaged Goods</SelectItem>
-                                <SelectItem value="return">Customer Return</SelectItem>
-                                <SelectItem value="initial">Initial Stock</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
+                                <SelectItem value="correction">Koreksi Inventori</SelectItem>
+                                <SelectItem value="damage">Barang Rusak</SelectItem>
+                                <SelectItem value="return">Retur Pelanggan</SelectItem>
+                                <SelectItem value="initial">Stok Awal</SelectItem>
+                                <SelectItem value="other">Lainnya</SelectItem>
                             </SelectContent>
                         </Select>
                         <InputError message={errors.type} />
@@ -568,12 +568,12 @@ function AdjustmentDialog({
 
                     {/* Notes */}
                     <div className="space-y-2">
-                        <Label htmlFor="adj-notes">Notes <span className="text-muted-foreground">(optional)</span></Label>
+                        <Label htmlFor="adj-notes">Catatan <span className="text-muted-foreground">(opsional)</span></Label>
                         <Textarea
                             id="adj-notes"
                             value={data.notes}
                             onChange={(e) => setData('notes', e.target.value)}
-                            placeholder="Reason for adjustment..."
+                            placeholder="Alasan penyesuaian..."
                             rows={2}
                         />
                         <InputError message={errors.notes} />
@@ -583,7 +583,7 @@ function AdjustmentDialog({
                     {data.quantity && parseInt(data.quantity) > 0 && product && (
                         <div className="rounded-lg border bg-muted/30 p-3">
                             <p className="text-sm text-muted-foreground">
-                                Stock will change from{' '}
+                                Stok akan berubah dari{' '}
                                 <strong className="text-foreground">{product.stock}</strong>
                                 {' → '}
                                 <strong className={direction === 'add' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}>
@@ -598,14 +598,14 @@ function AdjustmentDialog({
 
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={onClose}>
-                            Cancel
+                            Batal
                         </Button>
                         <Button
                             type="submit"
                             disabled={processing || !data.quantity || parseInt(data.quantity) <= 0}
                             className={direction === 'subtract' ? 'bg-red-600 hover:bg-red-700' : ''}
                         >
-                            {processing ? 'Saving...' : direction === 'add' ? 'Add Stock' : 'Remove Stock'}
+                            {processing ? 'Menyimpan...' : direction === 'add' ? 'Tambah Stok' : 'Kurangi Stok'}
                         </Button>
                     </DialogFooter>
                 </form>
@@ -640,11 +640,11 @@ function HistoryDialog({
         <Dialog open={!!product} onOpenChange={(open) => { if (!open) { onClose(); setFetchedId(null); } }}>
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>Adjustment History</DialogTitle>
+                    <DialogTitle>Riwayat Penyesuaian</DialogTitle>
                     <DialogDescription>
                         {product && (
                             <>
-                                History for <strong>{product.name}</strong> ({product.sku})
+                                Riwayat untuk <strong>{product.name}</strong> ({product.sku})
                             </>
                         )}
                     </DialogDescription>
@@ -656,17 +656,17 @@ function HistoryDialog({
                     </div>
                 ) : records.length === 0 ? (
                     <div className="py-8 text-center text-sm text-muted-foreground">
-                        No adjustments recorded yet.
+                        Belum ada penyesuaian tercatat.
                     </div>
                 ) : (
                     <div className="max-h-80 overflow-y-auto -mx-4 px-4">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Type</TableHead>
-                                    <TableHead className="text-center">Qty</TableHead>
-                                    <TableHead>Notes</TableHead>
+                                    <TableHead>Tanggal</TableHead>
+                                    <TableHead>Tipe</TableHead>
+                                    <TableHead className="text-center">Jml</TableHead>
+                                    <TableHead>Catatan</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -710,7 +710,7 @@ function HistoryDialog({
 
                 <DialogFooter>
                     <Button variant="outline" onClick={onClose}>
-                        Close
+                        Tutup
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -721,23 +721,23 @@ function HistoryDialog({
 function AdjustmentTypeBadge({ type }: { type: string }) {
     const config: Record<string, { label: string; className: string }> = {
         correction: {
-            label: 'Correction',
+            label: 'Koreksi',
             className: 'border-blue-500/50 text-blue-600 dark:text-blue-400',
         },
         damage: {
-            label: 'Damage',
+            label: 'Rusak',
             className: 'border-red-500/50 text-red-600 dark:text-red-400',
         },
         return: {
-            label: 'Return',
+            label: 'Retur',
             className: 'border-amber-500/50 text-amber-600 dark:text-amber-400',
         },
         initial: {
-            label: 'Initial',
+            label: 'Stok Awal',
             className: 'border-emerald-500/50 text-emerald-600 dark:text-emerald-400',
         },
         other: {
-            label: 'Other',
+            label: 'Lainnya',
             className: 'border-gray-500/50 text-gray-600 dark:text-gray-400',
         },
     };

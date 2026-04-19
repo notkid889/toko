@@ -27,7 +27,7 @@ type Props = {
 export default function Index({ purchases, filters }: Props) {
     return (
         <AppLayout>
-            <Head title="Purchases" />
+            <Head title="Pembelian" />
             <PurchaseContent purchases={purchases} filters={filters} />
         </AppLayout>
     );
@@ -47,10 +47,10 @@ function PurchaseContent({ purchases, filters }: Props) {
 
     async function handleDelete(purchase: PurchaseModel) {
         const isConfirmed = await confirm({
-            title: 'Delete Purchase?',
-            description: `This will delete invoice "${purchase.invoice_number}" and reverse the stock changes.`,
-            confirmText: 'Delete',
-            cancelText: 'Cancel',
+            title: 'Hapus Pembelian?',
+            description: `Invoice "${purchase.invoice_number}" akan dihapus dan perubahan stok akan dibatalkan.`,
+            confirmText: 'Hapus',
+            cancelText: 'Batal',
         });
         if (!isConfirmed) return;
         router.delete(`/purchases/${purchase.id}`, { preserveScroll: true });
@@ -63,14 +63,14 @@ function PurchaseContent({ purchases, filters }: Props) {
         <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Purchases</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Pembelian</h1>
                     <p className="text-muted-foreground text-sm">
-                        Record stock purchases from suppliers. {purchases.total} record{purchases.total !== 1 ? 's' : ''} total.
+                        Catat pembelian stok dari pemasok. Total {purchases.total} data.
                     </p>
                 </div>
                 <Button size="sm" onClick={() => router.visit('/purchases/create')}>
                     <Plus className="mr-1 size-4" />
-                    New Purchase
+                    Pembelian Baru
                 </Button>
             </div>
 
@@ -80,7 +80,7 @@ function PurchaseContent({ purchases, filters }: Props) {
                     <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         id="search-purchases"
-                        placeholder="Search by invoice or supplier..."
+                        placeholder="Cari invoice atau pemasok..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="pl-8"
@@ -94,18 +94,18 @@ function PurchaseContent({ purchases, filters }: Props) {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Invoice</TableHead>
-                            <TableHead>Supplier</TableHead>
-                            <TableHead>Date</TableHead>
-                            <TableHead className="text-center">Items</TableHead>
+                            <TableHead>Pemasok</TableHead>
+                            <TableHead>Tanggal</TableHead>
+                            <TableHead className="text-center">Item</TableHead>
                             <TableHead className="text-right">Total</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead className="text-right">Aksi</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {purchases.data.length === 0 && (
                             <TableRow>
                                 <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
-                                    No purchase records found.
+                                    Data pembelian tidak ditemukan.
                                 </TableCell>
                             </TableRow>
                         )}
@@ -157,7 +157,7 @@ function PurchaseContent({ purchases, filters }: Props) {
             {purchases.last_page > 1 && (
                 <div className="flex items-center justify-between px-2">
                     <p className="text-sm text-muted-foreground">
-                        Showing {purchases.from} to {purchases.to} of {purchases.total} results
+                        Menampilkan {purchases.from} sampai {purchases.to} dari {purchases.total} data
                     </p>
                     <div className="flex items-center gap-1">
                         {purchases.links.map((link, index) => (

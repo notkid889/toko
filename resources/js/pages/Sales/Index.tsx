@@ -27,7 +27,7 @@ type Props = {
 export default function Index({ sales, filters }: Props) {
     return (
         <AppLayout>
-            <Head title="Sales" />
+            <Head title="Penjualan" />
             <SaleContent sales={sales} filters={filters} />
         </AppLayout>
     );
@@ -47,10 +47,10 @@ function SaleContent({ sales, filters }: Props) {
 
     async function handleDelete(sale: SaleModel) {
         const isConfirmed = await confirm({
-            title: 'Delete Sale?',
-            description: `This will delete invoice "${sale.invoice_number}" and restore the stock.`,
-            confirmText: 'Delete',
-            cancelText: 'Cancel',
+            title: 'Hapus Penjualan?',
+            description: `Invoice "${sale.invoice_number}" akan dihapus dan stok akan dikembalikan.`,
+            confirmText: 'Hapus',
+            cancelText: 'Batal',
         });
         if (!isConfirmed) return;
         router.delete(`/sales/${sale.id}`, { preserveScroll: true });
@@ -63,14 +63,14 @@ function SaleContent({ sales, filters }: Props) {
         <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Sales</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Penjualan</h1>
                     <p className="text-muted-foreground text-sm">
-                        Record product sales to customers. {sales.total} record{sales.total !== 1 ? 's' : ''} total.
+                        Catat penjualan produk ke pelanggan. Total {sales.total} data.
                     </p>
                 </div>
                 <Button size="sm" onClick={() => router.visit('/sales/create')}>
                     <Plus className="mr-1 size-4" />
-                    New Sale
+                    Penjualan Baru
                 </Button>
             </div>
 
@@ -80,7 +80,7 @@ function SaleContent({ sales, filters }: Props) {
                     <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         id="search-sales"
-                        placeholder="Search by invoice or customer..."
+                        placeholder="Cari invoice atau pelanggan..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="pl-8"
@@ -94,18 +94,18 @@ function SaleContent({ sales, filters }: Props) {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Invoice</TableHead>
-                            <TableHead>Customer</TableHead>
-                            <TableHead>Date</TableHead>
-                            <TableHead className="text-center">Items</TableHead>
+                            <TableHead>Pelanggan</TableHead>
+                            <TableHead>Tanggal</TableHead>
+                            <TableHead className="text-center">Item</TableHead>
                             <TableHead className="text-right">Total</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead className="text-right">Aksi</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {sales.data.length === 0 && (
                             <TableRow>
                                 <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
-                                    No sale records found.
+                                    Data penjualan tidak ditemukan.
                                 </TableCell>
                             </TableRow>
                         )}
@@ -157,7 +157,7 @@ function SaleContent({ sales, filters }: Props) {
             {sales.last_page > 1 && (
                 <div className="flex items-center justify-between px-2">
                     <p className="text-sm text-muted-foreground">
-                        Showing {sales.from} to {sales.to} of {sales.total} results
+                        Menampilkan {sales.from} sampai {sales.to} dari {sales.total} data
                     </p>
                     <div className="flex items-center gap-1">
                         {sales.links.map((link, index) => (

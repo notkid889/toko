@@ -6,13 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import {
     Table,
     TableBody,
     TableCell,
@@ -21,13 +14,9 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import InputError from '@/components/ui/input-errors';
-import { ProductOption } from '@/types';
 import { Plus, Trash2 } from 'lucide-react';
 import { FormEvent, useState } from 'react';
-
-type Props = {
-    products: ProductOption[];
-};
+import { ProductCombobox } from '@/components/ui/product-combobox';
 
 type ItemRow = {
     product_id: string;
@@ -35,7 +24,7 @@ type ItemRow = {
     cost: string;
 };
 
-export default function Create({ products }: Props) {
+export default function Create() {
     const { data, setData, post, processing, errors } = useForm<{
         supplier: string;
         notes: string;
@@ -98,34 +87,34 @@ export default function Create({ products }: Props) {
 
     return (
         <AppLayout>
-            <Head title="New Purchase" />
+            <Head title="Pembelian Baru" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">New Purchase</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Pembelian Baru</h1>
                     <p className="text-muted-foreground text-sm">
-                        Record a new stock purchase from a supplier.
+                        Catat pembelian stok baru dari pemasok.
                     </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4 max-w-4xl">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Purchase Details</CardTitle>
+                            <CardTitle>Detail Pembelian</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="supplier">Supplier</Label>
+                                    <Label htmlFor="supplier">Pemasok</Label>
                                     <Input
                                         id="supplier"
                                         value={data.supplier}
                                         onChange={(e) => setData('supplier', e.target.value)}
-                                        placeholder="Supplier name (optional)"
+                                        placeholder="Nama pemasok (opsional)"
                                     />
                                     <InputError message={errors.supplier} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="date">Date</Label>
+                                    <Label htmlFor="date">Tanggal</Label>
                                     <Input
                                         id="date"
                                         type="date"
@@ -136,12 +125,12 @@ export default function Create({ products }: Props) {
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="notes">Notes</Label>
+                                <Label htmlFor="notes">Catatan</Label>
                                 <Textarea
                                     id="notes"
                                     value={data.notes}
                                     onChange={(e) => setData('notes', e.target.value)}
-                                    placeholder="Optional notes..."
+                                    placeholder="Catatan opsional..."
                                     rows={2}
                                 />
                                 <InputError message={errors.notes} />
@@ -151,10 +140,10 @@ export default function Create({ products }: Props) {
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle>Items</CardTitle>
+                            <CardTitle>Item</CardTitle>
                             <Button type="button" variant="outline" size="sm" onClick={addItem}>
                                 <Plus className="mr-1 size-4" />
-                                Add Item
+                                Tambah Item
                             </Button>
                         </CardHeader>
                         <CardContent>
@@ -163,9 +152,9 @@ export default function Create({ products }: Props) {
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="w-[40%]">Product</TableHead>
-                                            <TableHead className="w-[15%]">Qty</TableHead>
-                                            <TableHead className="w-[20%]">Cost/Unit</TableHead>
+                                            <TableHead className="w-[40%]">Produk</TableHead>
+                                            <TableHead className="w-[15%]">Jml</TableHead>
+                                            <TableHead className="w-[20%]">Harga/Unit</TableHead>
                                             <TableHead className="w-[20%] text-right">Subtotal</TableHead>
                                             <TableHead className="w-[5%]" />
                                         </TableRow>
@@ -176,23 +165,11 @@ export default function Create({ products }: Props) {
                                             return (
                                                 <TableRow key={index}>
                                                     <TableCell>
-                                                        <Select
+                                                        <ProductCombobox
                                                             value={item.product_id}
-                                                            onValueChange={(v) => updateItem(index, 'product_id', v)}
-                                                        >
-                                                            <SelectTrigger className="w-full">
-                                                                <SelectValue placeholder="Select product" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {products
-                                                                    .filter((p) => !selectedProducts.has(String(p.id)) || String(p.id) === item.product_id)
-                                                                    .map((p) => (
-                                                                        <SelectItem key={p.id} value={String(p.id)}>
-                                                                            {p.name} ({p.sku})
-                                                                        </SelectItem>
-                                                                    ))}
-                                                            </SelectContent>
-                                                        </Select>
+                                                            onChange={(v) => updateItem(index, 'product_id', v)}
+                                                            excludeIds={selectedProducts}
+                                                        />
                                                         <InputError message={(errors as any)[`items.${index}.product_id`]} />
                                                     </TableCell>
                                                     <TableCell>
@@ -238,7 +215,7 @@ export default function Create({ products }: Props) {
 
                             <div className="mt-4 flex justify-end">
                                 <div className="text-right">
-                                    <p className="text-sm text-muted-foreground">Grand Total</p>
+                                    <p className="text-sm text-muted-foreground">Total Keseluruhan</p>
                                     <p className="text-2xl font-bold tabular-nums">{formatPrice(getTotal())}</p>
                                 </div>
                             </div>
@@ -247,10 +224,10 @@ export default function Create({ products }: Props) {
 
                     <div className="flex items-center gap-2">
                         <Button type="submit" disabled={processing}>
-                            {processing ? 'Saving...' : 'Record Purchase'}
+                            {processing ? 'Menyimpan...' : 'Simpan Pembelian'}
                         </Button>
                         <Button type="button" variant="outline" onClick={() => router.visit('/purchases')}>
-                            Cancel
+                            Batal
                         </Button>
                     </div>
                 </form>

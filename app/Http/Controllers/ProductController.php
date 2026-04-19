@@ -135,4 +135,33 @@ class ProductController extends Controller
         return redirect()->route('products.index')
             ->with('success', 'Product deleted successfully.');
     }
+
+    /**
+     * Search products for autocomplete (JSON endpoint).
+     * Returns max 20 results matching name or SKU.
+     */
+    public function search(Request $request)
+    {
+        $query = Product::where('is_active', true);
+
+        // Optional: only products with stock (for sales)
+        if ($request->boolean('in_stock')) {
+            $query->where('stock', '>', 0);
+        }
+
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where(function ($qb) use ($q) {
+                $qb->where('name', 'like', "%{$q}%")
+                   ->orWhere('sku', 'like', "%{$q}%");
+            });
+        }
+
+        $products = $query
+            ->orderBy('name')
+            ->limit(20)
+            ->get(['id', 'name', 'sku', 'price', 'stock', 'unit']);
+
+        return response()->json($products);
+    }
 }

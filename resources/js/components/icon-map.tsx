@@ -1,4 +1,4 @@
-import { KeyRound, LayoutDashboard, Menu, Package, Shield, ShoppingBag, ShoppingCart, Tags, Users } from "lucide-react";
+import { ChartBar, DollarSign, KeyRound, LayoutDashboard, Menu, Package, Shield, ShoppingBag, ShoppingCart, Tags, Users } from "lucide-react";
 import { ReactNode } from "react";
 
 const IconMap: Record<string, ReactNode> = {
@@ -28,6 +28,12 @@ const IconMap: Record<string, ReactNode> = {
     ),
     ShoppingCart: (
         <ShoppingCart />
+    ),
+    DollarSign: (
+        <DollarSign />
+    ),
+    ChartBar: (
+        <ChartBar />
     ),
 };
 function getIcon(iconName?: string): ReactNode {

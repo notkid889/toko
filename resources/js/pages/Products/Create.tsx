@@ -81,29 +81,29 @@ export default function Create({ categories: initialCategories }: Props) {
 
     return (
         <AppLayout>
-            <Head title="Create Product" />
+            <Head title="Tambah Produk" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Create Product</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Tambah Produk</h1>
                     <p className="text-muted-foreground text-sm">
-                        Add a new product to your store inventory.
+                        Tambahkan produk baru ke inventori toko Anda.
                     </p>
                 </div>
 
                 <Card className="max-w-2xl">
                     <CardHeader>
-                        <CardTitle>Product Details</CardTitle>
+                        <CardTitle>Detail Produk</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="name">Name</Label>
+                                    <Label htmlFor="name">Nama</Label>
                                     <Input
                                         id="name"
                                         value={data.name}
                                         onChange={(e) => setData('name', e.target.value)}
-                                        placeholder="e.g. Mineral Water 600ml"
+                                        placeholder="cth. Air Mineral 600ml"
                                     />
                                     <InputError message={errors.name} />
                                 </div>
@@ -114,39 +114,39 @@ export default function Create({ categories: initialCategories }: Props) {
                                         id="sku"
                                         value={data.sku}
                                         onChange={(e) => setData('sku', e.target.value)}
-                                        placeholder="e.g. BEV-001"
+                                        placeholder="cth. BEV-001"
                                     />
                                     <InputError message={errors.sku} />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="category_id">Category</Label>
+                                <Label htmlFor="category_id">Kategori</Label>
                                 <CategoryCombobox
                                     id="category_id"
                                     options={categoryOptions}
                                     value={data.category_id}
                                     onChange={(value) => setData('category_id', value)}
                                     onCreateNew={handleCreateCategory}
-                                    placeholder="Search or create category..."
+                                    placeholder="Cari atau buat kategori..."
                                 />
                                 <InputError message={errors.category_id} />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="description">Description</Label>
+                                <Label htmlFor="description">Deskripsi</Label>
                                 <Textarea
                                     id="description"
                                     value={data.description}
                                     onChange={(e) => setData('description', e.target.value)}
-                                    placeholder="Product description..."
+                                    placeholder="Deskripsi produk..."
                                     rows={3}
                                 />
                                 <InputError message={errors.description} />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="unit">Unit</Label>
+                                <Label htmlFor="unit">Satuan</Label>
                                 <Input
                                     id="unit"
                                     value={data.unit}
@@ -161,13 +161,13 @@ export default function Create({ categories: initialCategories }: Props) {
                             <div className="flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-900 dark:bg-blue-950/30">
                                 <Info className="mt-0.5 size-4 shrink-0 text-blue-600 dark:text-blue-400" />
                                 <p className="text-xs text-blue-700 dark:text-blue-300">
-                                    Stock and buy price will be automatically calculated from purchase transactions. Create a purchase to add stock.
+                                    Stok dan harga beli akan dihitung otomatis dari transaksi pembelian. Buat pembelian untuk menambah stok.
                                 </p>
                             </div>
 
                             {/* Image Upload */}
                             <div className="space-y-2">
-                                <Label>Product Image</Label>
+                                <Label>Gambar Produk</Label>
                                 <div className="flex items-start gap-4">
                                     {preview ? (
                                         <img
@@ -194,10 +194,10 @@ export default function Create({ categories: initialCategories }: Props) {
                                             size="sm"
                                             onClick={() => fileInputRef.current?.click()}
                                         >
-                                            Choose Image
+                                            Pilih Gambar
                                         </Button>
                                         <p className="text-xs text-muted-foreground">
-                                            JPG, PNG, or WebP. Max 2MB.
+                                            JPG, PNG, atau WebP. Maks 2MB.
                                         </p>
                                     </div>
                                 </div>
@@ -207,9 +207,9 @@ export default function Create({ categories: initialCategories }: Props) {
                             {/* Active Toggle */}
                             <div className="flex items-center justify-between rounded-lg border p-3">
                                 <div className="space-y-0.5">
-                                    <Label htmlFor="is_active">Active</Label>
+                                    <Label htmlFor="is_active">Aktif</Label>
                                     <p className="text-xs text-muted-foreground">
-                                        Product will be visible in the store when active.
+                                        Produk akan terlihat di toko saat aktif.
                                     </p>
                                 </div>
                                 <Switch
@@ -221,14 +221,14 @@ export default function Create({ categories: initialCategories }: Props) {
 
                             <div className="flex items-center gap-2 pt-2">
                                 <Button type="submit" disabled={processing}>
-                                    {processing ? 'Saving...' : 'Create Product'}
+                                    {processing ? 'Menyimpan...' : 'Simpan Produk'}
                                 </Button>
                                 <Button
                                     type="button"
                                     variant="outline"
                                     onClick={() => router.visit('/products')}
                                 >
-                                    Cancel
+                                    Batal
                                 </Button>
                             </div>
                         </form>
