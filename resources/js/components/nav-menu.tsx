@@ -26,7 +26,10 @@ export default function NavMenu() {
     const isActive = (route: string) => {
         if (!route) return false;
         if (route === '/') return url === '/';
-        return url === route || url.startsWith(`${route}`);
+        // Match exact route or sub-paths (e.g. /products matches /products/create)
+        // but NOT partial matches (e.g. /sales should NOT match /sales-report)
+        const cleanUrl = url.split('?')[0];
+        return cleanUrl === route || cleanUrl.startsWith(`${route}/`);
     };
 
     return (

@@ -16,9 +16,9 @@ class StoreSaleRequest extends FormRequest
         return [
             'customer' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:1000'],
-            'date' => ['required', 'date'],
+            'date' => ['required', 'date', 'date_format:Y-m-d'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'exists:products,id'],
+            'items.*.product_id' => ['required', 'exists:products,id', 'distinct'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
             'items.*.price' => ['required', 'numeric', 'min:0'],
         ];
@@ -27,8 +27,17 @@ class StoreSaleRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'items.required' => 'At least one item is required.',
-            'items.min' => 'At least one item is required.',
+            'items.required' => 'Minimal satu item diperlukan.',
+            'items.min' => 'Minimal satu item diperlukan.',
+            'items.*.product_id.required' => 'Produk harus dipilih.',
+            'items.*.product_id.exists' => 'Produk tidak ditemukan.',
+            'items.*.product_id.distinct' => 'Produk tidak boleh dipilih lebih dari sekali.',
+            'items.*.quantity.required' => 'Jumlah harus diisi.',
+            'items.*.quantity.min' => 'Jumlah minimal 1.',
+            'items.*.price.required' => 'Harga harus diisi.',
+            'items.*.price.min' => 'Harga tidak boleh negatif.',
+            'date.required' => 'Tanggal harus diisi.',
+            'date.date_format' => 'Format tanggal tidak valid.',
         ];
     }
 }

@@ -29,6 +29,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import InputError from '@/components/ui/input-errors';
+import { PaginationNav } from '@/components/ui/pagination-nav';
 import { PaginatedData, ProductModel } from '@/types';
 import {
     AlertTriangle,
@@ -49,6 +50,7 @@ import {
 } from 'lucide-react';
 import { useState, useCallback } from 'react';
 import { useFlash } from '@/hooks/use-flash';
+import { formatPrice, formatNumber } from '@/lib/formatters';
 import axios from 'axios';
 
 interface StockProduct extends ProductModel {
@@ -123,15 +125,7 @@ function StockContent({ products, summary, categories, filters }: Props) {
         applyFilters({ search });
     }
 
-    const formatPrice = (price: number) =>
-        new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0,
-        }).format(price);
 
-    const formatNumber = (num: number) =>
-        new Intl.NumberFormat('id-ID').format(num);
 
     function getStockBadge(stock: number) {
         if (stock <= 0)
@@ -401,31 +395,14 @@ function StockContent({ products, summary, categories, filters }: Props) {
                 </Table>
             </div>
 
-            {/* Pagination */}
-            {products.last_page > 1 && (
-                <div className="flex items-center justify-between px-2">
-                    <p className="text-sm text-muted-foreground">
-                        Menampilkan {products.from} sampai {products.to} dari {products.total} produk
-                    </p>
-                    <div className="flex items-center gap-1">
-                        {products.links.map((link, index) => (
-                            <Button
-                                key={index}
-                                variant={link.active ? 'default' : 'outline'}
-                                size="sm"
-                                disabled={!link.url}
-                                onClick={() => {
-                                    if (link.url) {
-                                        router.get(link.url, {}, { preserveState: true, preserveScroll: true });
-                                    }
-                                }}
-                                dangerouslySetInnerHTML={{ __html: link.label }}
-                                className="min-w-[36px]"
-                            />
-                        ))}
-                    </div>
-                </div>
-            )}
+            <PaginationNav
+                from={products.from}
+                to={products.to}
+                total={products.total}
+                lastPage={products.last_page}
+                links={products.links}
+                itemLabel="produk"
+            />
 
             {/* Adjustment Dialog */}
             <AdjustmentDialog

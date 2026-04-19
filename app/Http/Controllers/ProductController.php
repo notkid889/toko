@@ -6,6 +6,7 @@ use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -13,40 +14,33 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
-// NOTE: Run `php artisan storage:link` to create the public storage symlink
-
 class ProductController extends Controller
 {
     public function index(Request $request): Response
     {
         $query = Product::with('category');
 
-        // Category filter
-        if ($request->filled('category')) {
-            $query->where('category_id', $request->input('category'));
+        if ($request->filled('search')) {
+            $query->search($request->input('search'));
         }
 
-        // Search filter
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('sku', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->input('category'));
         }
 
         $products = $query->latest()->paginate(10)->withQueryString();
 
         $categories = Category::orderBy('name')->get(['id', 'name']);
+
         $summary = [
             'total_products' => Product::count(),
-            'total_value' => Product::selectRaw('SUM(stock * price) as value')->value('value') ?? 0,
+            'total_value' => Product::selectRaw('COALESCE(SUM(stock * price), 0) as value')->value('value'),
         ];
+
         return Inertia::render('Products/Index', [
             'products' => $products,
-            'summary' => $summary,
             'categories' => $categories,
+            'summary' => $summary,
             'filters' => [
                 'search' => $request->input('search', ''),
                 'category' => $request->input('category', ''),
@@ -66,29 +60,22 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        $data['slug'] = Str::slug($data['name']);
 
-        // Handle image upload
+        $data['slug'] = Str::slug($data['name']);
+        $data['sku'] = $data['sku'] ?? strtoupper(Str::random(8));
+
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
-        // Ensure is_active is set
-        $data['is_active'] = $request->boolean('is_active', true);
-
-        // Stock and price are derived from purchases/sales
-        $data['stock'] = 0;
-        $data['price'] = 0;
-
         Product::create($data);
 
         return redirect()->route('products.index')
-            ->with('success', 'Product created successfully.');
+            ->with('success', 'Produk berhasil ditambahkan.');
     }
 
     public function edit(Product $product): Response
     {
-        $product->load('category');
         $categories = Category::orderBy('name')->get(['id', 'name']);
 
         return Inertia::render('Products/Edit', [
@@ -100,9 +87,9 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, Product $product): RedirectResponse
     {
         $data = $request->validated();
+
         $data['slug'] = Str::slug($data['name']);
 
-        // Handle image upload
         if ($request->hasFile('image')) {
             // Delete old image
             if ($product->image) {
@@ -111,16 +98,10 @@ class ProductController extends Controller
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
-        // Ensure is_active is set
-        $data['is_active'] = $request->boolean('is_active', true);
-
-        // Don't overwrite stock/price — they are derived from purchases/sales
-        unset($data['stock'], $data['price']);
-
         $product->update($data);
 
         return redirect()->route('products.index')
-            ->with('success', 'Product updated successfully.');
+            ->with('success', 'Produk berhasil diperbarui.');
     }
 
     public function destroy(Product $product): RedirectResponse
@@ -133,28 +114,23 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('products.index')
-            ->with('success', 'Product deleted successfully.');
+            ->with('success', 'Produk berhasil dihapus.');
     }
 
     /**
      * Search products for autocomplete (JSON endpoint).
      * Returns max 20 results matching name or SKU.
      */
-    public function search(Request $request)
+    public function search(Request $request): JsonResponse
     {
-        $query = Product::where('is_active', true);
+        $query = Product::active();
 
-        // Optional: only products with stock (for sales)
         if ($request->boolean('in_stock')) {
-            $query->where('stock', '>', 0);
+            $query->inStock();
         }
 
         if ($request->filled('q')) {
-            $q = $request->input('q');
-            $query->where(function ($qb) use ($q) {
-                $qb->where('name', 'like', "%{$q}%")
-                   ->orWhere('sku', 'like', "%{$q}%");
-            });
+            $query->search($request->input('q'));
         }
 
         $products = $query

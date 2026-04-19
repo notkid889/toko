@@ -45,47 +45,46 @@ class PurchaseController extends Controller
         $data = $request->validated();
 
         DB::transaction(function () use ($data) {
-            // Generate invoice number: PUR-YYYYMMDD-XXXX
+            // Generate invoice number with lock to prevent duplicates
             $today = date('Ymd');
-            $count = Purchase::whereDate('date', $data['date'])->count() + 1;
+            $count = Purchase::whereDate('date', $data['date'])->lockForUpdate()->count() + 1;
             $invoiceNumber = 'PUR-' . $today . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+
+            $total = 0;
+            $items = [];
+
+            foreach ($data['items'] as $item) {
+                $subtotal = $item['quantity'] * $item['cost'];
+                $total += $subtotal;
+                $items[] = [
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'cost' => $item['cost'],
+                    'subtotal' => $subtotal,
+                ];
+            }
 
             $purchase = Purchase::create([
                 'invoice_number' => $invoiceNumber,
                 'supplier' => $data['supplier'] ?? null,
                 'notes' => $data['notes'] ?? null,
                 'date' => $data['date'],
-                'total' => 0,
+                'total' => $total,
             ]);
 
-            $total = 0;
-            $affectedProductIds = [];
-
-            foreach ($data['items'] as $item) {
-                $subtotal = $item['quantity'] * $item['cost'];
-                $total += $subtotal;
-
-                $purchase->items()->create([
-                    'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
-                    'cost' => $item['cost'],
-                    'subtotal' => $subtotal,
-                ]);
-
-                $affectedProductIds[] = $item['product_id'];
-            }
-
-            $purchase->update(['total' => $total]);
+            $purchase->items()->createMany($items);
 
             // Recalculate stock and buy price for all affected products
-            foreach (array_unique($affectedProductIds) as $productId) {
-                Product::recalculateStock($productId);
-                Product::updateBuyPrice($productId);
+            $affectedProductIds = array_unique(array_column($data['items'], 'product_id'));
+            foreach ($affectedProductIds as $productId) {
+                $product = Product::find($productId);
+                $product?->recalculateStock();
+                $product?->updateBuyPrice();
             }
         });
 
         return redirect()->route('purchases.index')
-            ->with('success', 'Purchase recorded successfully.');
+            ->with('success', 'Pembelian berhasil dicatat.');
     }
 
     public function show(Purchase $purchase): Response
@@ -100,19 +99,19 @@ class PurchaseController extends Controller
     public function destroy(Purchase $purchase): RedirectResponse
     {
         DB::transaction(function () use ($purchase) {
-            // Collect affected product IDs before deleting
             $affectedProductIds = $purchase->items->pluck('product_id')->unique()->toArray();
 
             $purchase->delete();
 
             // Recalculate stock and buy price for all affected products
             foreach ($affectedProductIds as $productId) {
-                Product::recalculateStock($productId);
-                Product::updateBuyPrice($productId);
+                $product = Product::find($productId);
+                $product?->recalculateStock();
+                $product?->updateBuyPrice();
             }
         });
 
         return redirect()->route('purchases.index')
-            ->with('success', 'Purchase deleted and stock reversed.');
+            ->with('success', 'Pembelian dihapus dan stok dikembalikan.');
     }
 }

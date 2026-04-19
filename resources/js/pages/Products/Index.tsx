@@ -18,10 +18,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { PaginationNav } from '@/components/ui/pagination-nav';
 import { CategoryModel, PaginatedData, ProductModel } from '@/types';
 import { Box, Edit, Package, Plus, Search, Trash2, Warehouse } from 'lucide-react';
 import { useConfirm } from '@/components/confirm-provider';
 import { useFlash } from '@/hooks/use-flash';
+import { formatPrice, formatNumber } from '@/lib/formatters';
 import { useState, useCallback } from 'react';
 
 type Props = {
@@ -89,16 +91,7 @@ function ProductContent({ products, categories, filters, summary }: Props) {
         router.delete(`/products/${product.id}`, { preserveScroll: true });
     }
 
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0,
-        }).format(price);
-    };
 
-    const formatNumber = (num: number) =>
-        new Intl.NumberFormat('id-ID').format(num);
 
     return (
         <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
@@ -254,31 +247,14 @@ function ProductContent({ products, categories, filters, summary }: Props) {
                 </Table>
             </div>
 
-            {/* Pagination */}
-            {products.last_page > 1 && (
-                <div className="flex items-center justify-between px-2">
-                    <p className="text-sm text-muted-foreground">
-                        Menampilkan {products.from} sampai {products.to} dari {products.total} data
-                    </p>
-                    <div className="flex items-center gap-1">
-                        {products.links.map((link, index) => (
-                            <Button
-                                key={index}
-                                variant={link.active ? 'default' : 'outline'}
-                                size="sm"
-                                disabled={!link.url}
-                                onClick={() => {
-                                    if (link.url) {
-                                        router.get(link.url, {}, { preserveState: true, preserveScroll: true });
-                                    }
-                                }}
-                                dangerouslySetInnerHTML={{ __html: link.label }}
-                                className="min-w-[36px]"
-                            />
-                        ))}
-                    </div>
-                </div>
-            )}
+            <PaginationNav
+                from={products.from}
+                to={products.to}
+                total={products.total}
+                lastPage={products.last_page}
+                links={products.links}
+                itemLabel="produk"
+            />
         </div>
     );
 }

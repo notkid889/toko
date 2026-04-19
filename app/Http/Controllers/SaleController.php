@@ -44,57 +44,56 @@ class SaleController extends Controller
     {
         $data = $request->validated();
 
-        // Validate stock availability
-        foreach ($data['items'] as $item) {
-            $product = Product::findOrFail($item['product_id']);
-            if ($product->stock < $item['quantity']) {
-                return redirect()->back()
-                    ->withErrors(['items' => "Insufficient stock for {$product->name}. Available: {$product->stock}"])
-                    ->withInput();
-            }
-        }
-
+        // All logic inside transaction for ACID consistency
         DB::transaction(function () use ($data) {
-            // Generate invoice number: SAL-YYYYMMDD-XXXX
+            // Validate stock availability inside transaction (prevents race conditions)
+            foreach ($data['items'] as $item) {
+                $product = Product::lockForUpdate()->findOrFail($item['product_id']);
+                if ($product->stock < $item['quantity']) {
+                    throw new \RuntimeException(
+                        "Stok tidak cukup untuk {$product->name}. Tersedia: {$product->stock}"
+                    );
+                }
+            }
+
+            // Generate invoice number with lock to prevent duplicates
             $today = date('Ymd');
-            $count = Sale::whereDate('date', $data['date'])->count() + 1;
+            $count = Sale::whereDate('date', $data['date'])->lockForUpdate()->count() + 1;
             $invoiceNumber = 'SAL-' . $today . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+
+            $total = 0;
+            $items = [];
+
+            foreach ($data['items'] as $item) {
+                $subtotal = $item['quantity'] * $item['price'];
+                $total += $subtotal;
+                $items[] = [
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'subtotal' => $subtotal,
+                ];
+            }
 
             $sale = Sale::create([
                 'invoice_number' => $invoiceNumber,
                 'customer' => $data['customer'] ?? null,
                 'notes' => $data['notes'] ?? null,
                 'date' => $data['date'],
-                'total' => 0,
+                'total' => $total,
             ]);
 
-            $total = 0;
-            $affectedProductIds = [];
-
-            foreach ($data['items'] as $item) {
-                $subtotal = $item['quantity'] * $item['price'];
-                $total += $subtotal;
-
-                $sale->items()->create([
-                    'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
-                    'price' => $item['price'],
-                    'subtotal' => $subtotal,
-                ]);
-
-                $affectedProductIds[] = $item['product_id'];
-            }
-
-            $sale->update(['total' => $total]);
+            $sale->items()->createMany($items);
 
             // Recalculate stock for all affected products
-            foreach (array_unique($affectedProductIds) as $productId) {
-                Product::recalculateStock($productId);
+            $affectedProductIds = array_unique(array_column($data['items'], 'product_id'));
+            foreach ($affectedProductIds as $productId) {
+                Product::find($productId)?->recalculateStock();
             }
         });
 
         return redirect()->route('sales.index')
-            ->with('success', 'Sale recorded successfully.');
+            ->with('success', 'Penjualan berhasil dicatat.');
     }
 
     public function show(Sale $sale): Response
@@ -109,18 +108,17 @@ class SaleController extends Controller
     public function destroy(Sale $sale): RedirectResponse
     {
         DB::transaction(function () use ($sale) {
-            // Collect affected product IDs before deleting
             $affectedProductIds = $sale->items->pluck('product_id')->unique()->toArray();
 
             $sale->delete();
 
             // Recalculate stock for all affected products
             foreach ($affectedProductIds as $productId) {
-                Product::recalculateStock($productId);
+                Product::find($productId)?->recalculateStock();
             }
         });
 
         return redirect()->route('sales.index')
-            ->with('success', 'Sale deleted and stock restored.');
+            ->with('success', 'Penjualan dihapus dan stok dikembalikan.');
     }
 }

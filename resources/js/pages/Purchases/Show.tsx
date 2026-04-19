@@ -12,14 +12,13 @@ import {
 } from '@/components/ui/table';
 import { PurchaseModel } from '@/types';
 import { ArrowLeft } from 'lucide-react';
+import { formatPrice, formatDate } from '@/lib/formatters';
 
 type Props = {
     purchase: PurchaseModel;
 };
 
 export default function Show({ purchase }: Props) {
-    const formatPrice = (price: number) =>
-        new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
 
     return (
         <AppLayout>
@@ -53,7 +52,7 @@ export default function Show({ purchase }: Props) {
                         </CardHeader>
                         <CardContent>
                             <p className="text-lg font-semibold">
-                                {new Date(purchase.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                {formatDate(purchase.date, { day: 'numeric', month: 'long', year: 'numeric' })}
                             </p>
                         </CardContent>
                     </Card>

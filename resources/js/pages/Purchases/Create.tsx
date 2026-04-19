@@ -17,6 +17,7 @@ import InputError from '@/components/ui/input-errors';
 import { Plus, Trash2 } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 import { ProductCombobox } from '@/components/ui/product-combobox';
+import { formatPrice } from '@/lib/formatters';
 
 type ItemRow = {
     product_id: string;
@@ -77,8 +78,7 @@ export default function Create() {
         }, 0);
     }
 
-    const formatPrice = (price: number) =>
-        new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
+
 
     function handleSubmit(e: FormEvent) {
         e.preventDefault();

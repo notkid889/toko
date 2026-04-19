@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'category_id',
         'name',
@@ -53,6 +57,8 @@ class Product extends Model
         });
     }
 
+    // ── Relationships ──────────────────────────────────────────────────
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
@@ -73,36 +79,91 @@ class Product extends Model
         return $this->hasMany(StockAdjustment::class);
     }
 
+    // ── Query Scopes ───────────────────────────────────────────────────
+
     /**
-     * Recalculate the stock for a product based on purchases, sales, and adjustments.
+     * Scope: only active products.
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope: only products with stock > 0.
+     */
+    public function scopeInStock(Builder $query): Builder
+    {
+        return $query->where('stock', '>', 0);
+    }
+
+    /**
+     * Scope: products with stock between 1 and the given threshold (default 10).
+     */
+    public function scopeLowStock(Builder $query, int $threshold = 10): Builder
+    {
+        return $query->where('stock', '>', 0)->where('stock', '<=', $threshold);
+    }
+
+    /**
+     * Scope: search by name or SKU.
+     */
+    public function scopeSearch(Builder $query, ?string $term): Builder
+    {
+        if (!$term) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+              ->orWhere('sku', 'like', "%{$term}%");
+        });
+    }
+
+    // ── Business Logic ─────────────────────────────────────────────────
+
+    /**
+     * Recalculate the stock for this product based on purchases, sales, and adjustments.
      * stock = SUM(purchase_items.quantity) - SUM(sale_items.quantity) + SUM(stock_adjustments.quantity)
      */
-    public static function recalculateStock(int $productId): void
+    public function recalculateStock(): void
     {
-        $product = static::findOrFail($productId);
+        $totalPurchased = $this->purchaseItems()->sum('quantity');
+        $totalSold = $this->saleItems()->sum('quantity');
+        $totalAdjustment = $this->stockAdjustments()->sum('quantity');
 
-        $totalPurchased = $product->purchaseItems()->sum('quantity');
-        $totalSold = $product->saleItems()->sum('quantity');
-        $totalAdjustment = $product->stockAdjustments()->sum('quantity');
-
-        $product->update(['stock' => $totalPurchased - $totalSold + $totalAdjustment]);
+        $this->update(['stock' => $totalPurchased - $totalSold + $totalAdjustment]);
     }
 
     /**
      * Update the buy price from the latest purchase cost for the product.
      * Uses the most recent purchase (by date desc, then id desc).
      */
-    public static function updateBuyPrice(int $productId): void
+    public function updateBuyPrice(): void
     {
-        $product = static::findOrFail($productId);
-
-        $latestItem = $product->purchaseItems()
+        $latestItem = $this->purchaseItems()
             ->join('purchases', 'purchase_items.purchase_id', '=', 'purchases.id')
             ->orderByDesc('purchases.date')
             ->orderByDesc('purchases.id')
             ->select('purchase_items.cost')
             ->first();
 
-        $product->update(['price' => $latestItem ? $latestItem->cost : 0]);
+        $this->update(['price' => $latestItem ? $latestItem->cost : 0]);
+    }
+
+    /**
+     * Static convenience: recalculate stock for a given product ID.
+     */
+    public static function recalculateStockFor(int $productId): void
+    {
+        static::findOrFail($productId)->recalculateStock();
+    }
+
+    /**
+     * Static convenience: update buy price for a given product ID.
+     */
+    public static function updateBuyPriceFor(int $productId): void
+    {
+        static::findOrFail($productId)->updateBuyPrice();
     }
 }

@@ -11,10 +11,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { PaginationNav } from '@/components/ui/pagination-nav';
 import { PaginatedData, PurchaseModel } from '@/types';
 import { Eye, Plus, Search, Trash2 } from 'lucide-react';
 import { useConfirm } from '@/components/confirm-provider';
 import { useFlash } from '@/hooks/use-flash';
+import { formatPrice, formatDate } from '@/lib/formatters';
 import { useState } from 'react';
 
 type Props = {
@@ -56,8 +58,7 @@ function PurchaseContent({ purchases, filters }: Props) {
         router.delete(`/purchases/${purchase.id}`, { preserveScroll: true });
     }
 
-    const formatPrice = (price: number) =>
-        new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
+
 
     return (
         <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
@@ -120,7 +121,7 @@ function PurchaseContent({ purchases, filters }: Props) {
                                     {purchase.supplier || <span className="text-muted-foreground">—</span>}
                                 </TableCell>
                                 <TableCell className="text-sm text-muted-foreground">
-                                    {new Date(purchase.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                    {formatDate(purchase.date)}
                                 </TableCell>
                                 <TableCell className="text-center">
                                     <Badge variant="secondary">{purchase.items_count ?? 0}</Badge>
@@ -153,29 +154,13 @@ function PurchaseContent({ purchases, filters }: Props) {
                 </Table>
             </div>
 
-            {/* Pagination */}
-            {purchases.last_page > 1 && (
-                <div className="flex items-center justify-between px-2">
-                    <p className="text-sm text-muted-foreground">
-                        Menampilkan {purchases.from} sampai {purchases.to} dari {purchases.total} data
-                    </p>
-                    <div className="flex items-center gap-1">
-                        {purchases.links.map((link, index) => (
-                            <Button
-                                key={index}
-                                variant={link.active ? 'default' : 'outline'}
-                                size="sm"
-                                disabled={!link.url}
-                                onClick={() => {
-                                    if (link.url) router.get(link.url, {}, { preserveState: true, preserveScroll: true });
-                                }}
-                                dangerouslySetInnerHTML={{ __html: link.label }}
-                                className="min-w-[36px]"
-                            />
-                        ))}
-                    </div>
-                </div>
-            )}
+            <PaginationNav
+                from={purchases.from}
+                to={purchases.to}
+                total={purchases.total}
+                lastPage={purchases.last_page}
+                links={purchases.links}
+            />
         </div>
     );
 }

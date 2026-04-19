@@ -11,10 +11,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { PaginationNav } from '@/components/ui/pagination-nav';
 import { PaginatedData, SaleModel } from '@/types';
 import { Eye, Plus, Search, Trash2 } from 'lucide-react';
 import { useConfirm } from '@/components/confirm-provider';
 import { useFlash } from '@/hooks/use-flash';
+import { formatPrice, formatDate } from '@/lib/formatters';
 import { useState } from 'react';
 
 type Props = {
@@ -56,8 +58,7 @@ function SaleContent({ sales, filters }: Props) {
         router.delete(`/sales/${sale.id}`, { preserveScroll: true });
     }
 
-    const formatPrice = (price: number) =>
-        new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
+
 
     return (
         <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
@@ -120,7 +121,7 @@ function SaleContent({ sales, filters }: Props) {
                                     {sale.customer || <span className="text-muted-foreground">—</span>}
                                 </TableCell>
                                 <TableCell className="text-sm text-muted-foreground">
-                                    {new Date(sale.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                    {formatDate(sale.date)}
                                 </TableCell>
                                 <TableCell className="text-center">
                                     <Badge variant="secondary">{sale.items_count ?? 0}</Badge>
@@ -153,29 +154,13 @@ function SaleContent({ sales, filters }: Props) {
                 </Table>
             </div>
 
-            {/* Pagination */}
-            {sales.last_page > 1 && (
-                <div className="flex items-center justify-between px-2">
-                    <p className="text-sm text-muted-foreground">
-                        Menampilkan {sales.from} sampai {sales.to} dari {sales.total} data
-                    </p>
-                    <div className="flex items-center gap-1">
-                        {sales.links.map((link, index) => (
-                            <Button
-                                key={index}
-                                variant={link.active ? 'default' : 'outline'}
-                                size="sm"
-                                disabled={!link.url}
-                                onClick={() => {
-                                    if (link.url) router.get(link.url, {}, { preserveState: true, preserveScroll: true });
-                                }}
-                                dangerouslySetInnerHTML={{ __html: link.label }}
-                                className="min-w-[36px]"
-                            />
-                        ))}
-                    </div>
-                </div>
-            )}
+            <PaginationNav
+                from={sales.from}
+                to={sales.to}
+                total={sales.total}
+                lastPage={sales.last_page}
+                links={sales.links}
+            />
         </div>
     );
 }

@@ -29,8 +29,20 @@ class ReportController extends Controller
                 Carbon::parse($request->input('start_date', Carbon::now()->startOfMonth())),
                 Carbon::parse($request->input('end_date', Carbon::now()->endOfMonth())),
             ],
-            default => [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()], // month
+            default => [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()],
         };
+    }
+
+    /**
+     * Build shared filter response data.
+     */
+    private function buildFilterData(Request $request, Carbon $startDate, Carbon $endDate): array
+    {
+        return [
+            'period'     => $request->input('period', 'month'),
+            'start_date' => $startDate->format('Y-m-d'),
+            'end_date'   => $endDate->format('Y-m-d'),
+        ];
     }
 
     /**
@@ -40,33 +52,34 @@ class ReportController extends Controller
     {
         [$startDate, $endDate] = $this->resolveDateRange($request);
 
-        // Summary
-        $totalSales = Sale::whereBetween('date', [$startDate, $endDate])->sum('total');
-        $totalPurchases = Purchase::whereBetween('date', [$startDate, $endDate])->sum('total');
-        $salesCount = Sale::whereBetween('date', [$startDate, $endDate])->count();
-        $purchasesCount = Purchase::whereBetween('date', [$startDate, $endDate])->count();
+        // Summary — 4 queries compressed to 2 using selectRaw
+        $salesSummary = Sale::inDateRange($startDate, $endDate)
+            ->selectRaw('COUNT(*) as count, COALESCE(SUM(total), 0) as total')
+            ->first();
+
+        $purchasesSummary = Purchase::inDateRange($startDate, $endDate)
+            ->selectRaw('COUNT(*) as count, COALESCE(SUM(total), 0) as total')
+            ->first();
 
         // Sales Trend — daily aggregation within the period
-        $salesTrend = Sale::whereBetween('date', [$startDate, $endDate])
+        $salesTrend = Sale::inDateRange($startDate, $endDate)
             ->select(DB::raw('DATE(date) as date'), DB::raw('SUM(total) as total'))
             ->groupBy(DB::raw('DATE(date)'))
             ->orderBy('date')
-            ->get()
-            ->keyBy('date');
+            ->pluck('total', 'date');
 
         // Fill in missing dates with 0
         $trendData = [];
-        $dateRange = CarbonPeriod::create($startDate, $endDate);
-        foreach ($dateRange as $date) {
+        foreach (CarbonPeriod::create($startDate, $endDate) as $date) {
             $key = $date->format('Y-m-d');
             $trendData[] = [
                 'date'  => $key,
                 'label' => $date->format('d M'),
-                'total' => (float) ($salesTrend[$key]->total ?? 0),
+                'total' => (float) ($salesTrend[$key] ?? 0),
             ];
         }
 
-        // Top 10 products by quantity sold in this period
+        // Top 10 products by quantity sold
         $topProducts = DB::table('sale_items')
             ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
             ->join('products', 'sale_items.product_id', '=', 'products.id')
@@ -84,7 +97,7 @@ class ReportController extends Controller
             ->get();
 
         // Recent transactions — latest 10 combined sales + purchases
-        $recentSales = Sale::whereBetween('date', [$startDate, $endDate])
+        $recentSales = Sale::inDateRange($startDate, $endDate)
             ->latest('date')->latest('id')
             ->limit(10)
             ->get()
@@ -98,7 +111,7 @@ class ReportController extends Controller
                 'created_at'     => $s->created_at->toISOString(),
             ]);
 
-        $recentPurchases = Purchase::whereBetween('date', [$startDate, $endDate])
+        $recentPurchases = Purchase::inDateRange($startDate, $endDate)
             ->latest('date')->latest('id')
             ->limit(10)
             ->get()
@@ -119,19 +132,15 @@ class ReportController extends Controller
 
         return Inertia::render('Reports/Index', [
             'summary' => [
-                'total_sales'     => (float) $totalSales,
-                'total_purchases' => (float) $totalPurchases,
-                'sales_count'     => $salesCount,
-                'purchases_count' => $purchasesCount,
+                'total_sales'     => (float) $salesSummary->total,
+                'total_purchases' => (float) $purchasesSummary->total,
+                'sales_count'     => (int) $salesSummary->count,
+                'purchases_count' => (int) $purchasesSummary->count,
             ],
             'salesTrend'          => $trendData,
             'topProducts'         => $topProducts,
             'recentTransactions'  => $recentTransactions,
-            'filters' => [
-                'period'     => $request->input('period', 'month'),
-                'start_date' => $startDate->format('Y-m-d'),
-                'end_date'   => $endDate->format('Y-m-d'),
-            ],
+            'filters' => $this->buildFilterData($request, $startDate, $endDate),
         ]);
     }
 
@@ -143,22 +152,34 @@ class ReportController extends Controller
         [$startDate, $endDate] = $this->resolveDateRange($request);
 
         // Summary for selected period
-        $totalIncome = (float) Sale::whereBetween('date', [$startDate, $endDate])->sum('total');
-        $totalExpense = (float) Purchase::whereBetween('date', [$startDate, $endDate])->sum('total');
+        $totalIncome = (float) Sale::inDateRange($startDate, $endDate)->sum('total');
+        $totalExpense = (float) Purchase::inDateRange($startDate, $endDate)->sum('total');
         $grossProfit = $totalIncome - $totalExpense;
         $marginPercentage = $totalIncome > 0 ? round(($grossProfit / $totalIncome) * 100, 1) : 0;
 
-        // Monthly comparison — last 12 months
+        // Monthly comparison — last 12 months (optimized: 2 queries instead of 24)
+        $twelveMonthsAgo = Carbon::now()->subMonths(11)->startOfMonth();
+        $endOfThisMonth = Carbon::now()->endOfMonth();
+
+        $monthlySales = Sale::inDateRange($twelveMonthsAgo, $endOfThisMonth)
+            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(total) as total')
+            ->groupByRaw('DATE_FORMAT(date, "%Y-%m")')
+            ->pluck('total', 'month');
+
+        $monthlyPurchases = Purchase::inDateRange($twelveMonthsAgo, $endOfThisMonth)
+            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(total) as total')
+            ->groupByRaw('DATE_FORMAT(date, "%Y-%m")')
+            ->pluck('total', 'month');
+
         $monthlyData = [];
         for ($i = 11; $i >= 0; $i--) {
             $monthStart = Carbon::now()->subMonths($i)->startOfMonth();
-            $monthEnd   = Carbon::now()->subMonths($i)->endOfMonth();
-
-            $income  = (float) Sale::whereBetween('date', [$monthStart, $monthEnd])->sum('total');
-            $expense = (float) Purchase::whereBetween('date', [$monthStart, $monthEnd])->sum('total');
+            $key = $monthStart->format('Y-m');
+            $income  = (float) ($monthlySales[$key] ?? 0);
+            $expense = (float) ($monthlyPurchases[$key] ?? 0);
 
             $monthlyData[] = [
-                'month'   => $monthStart->format('Y-m'),
+                'month'   => $key,
                 'label'   => $monthStart->format('M Y'),
                 'income'  => $income,
                 'expense' => $expense,
@@ -166,7 +187,7 @@ class ReportController extends Controller
             ];
         }
 
-        // Profit per product — use subqueries to avoid cartesian product from multiple JOINs
+        // Profit per product — use subqueries to avoid cartesian product
         $revenueSubquery = DB::table('sale_items')
             ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
             ->whereBetween('sales.date', [$startDate, $endDate])
@@ -221,26 +242,22 @@ class ReportController extends Controller
             });
 
         // Cash flow — daily income & expense in the period
-        $dailyIncome = Sale::whereBetween('date', [$startDate, $endDate])
+        $dailyIncome = Sale::inDateRange($startDate, $endDate)
             ->select(DB::raw('DATE(date) as date'), DB::raw('SUM(total) as total'))
             ->groupBy(DB::raw('DATE(date)'))
-            ->get()
-            ->keyBy('date');
+            ->pluck('total', 'date');
 
-        $dailyExpense = Purchase::whereBetween('date', [$startDate, $endDate])
+        $dailyExpense = Purchase::inDateRange($startDate, $endDate)
             ->select(DB::raw('DATE(date) as date'), DB::raw('SUM(total) as total'))
             ->groupBy(DB::raw('DATE(date)'))
-            ->get()
-            ->keyBy('date');
+            ->pluck('total', 'date');
 
         $cashFlow = [];
-        $dateRange = CarbonPeriod::create($startDate, $endDate);
-        foreach ($dateRange as $date) {
+        foreach (CarbonPeriod::create($startDate, $endDate) as $date) {
             $key = $date->format('Y-m-d');
-            $income  = (float) ($dailyIncome[$key]->total ?? 0);
-            $expense = (float) ($dailyExpense[$key]->total ?? 0);
+            $income  = (float) ($dailyIncome[$key] ?? 0);
+            $expense = (float) ($dailyExpense[$key] ?? 0);
 
-            // Only include dates that have transactions
             if ($income > 0 || $expense > 0) {
                 $cashFlow[] = [
                     'date'    => $key,
@@ -262,11 +279,7 @@ class ReportController extends Controller
             'monthlyComparison' => $monthlyData,
             'productProfits'    => $productProfits,
             'cashFlow'          => $cashFlow,
-            'filters' => [
-                'period'     => $request->input('period', 'month'),
-                'start_date' => $startDate->format('Y-m-d'),
-                'end_date'   => $endDate->format('Y-m-d'),
-            ],
+            'filters' => $this->buildFilterData($request, $startDate, $endDate),
         ]);
     }
 }

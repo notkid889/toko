@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -26,5 +27,13 @@ class Purchase extends Model
     public function items(): HasMany
     {
         return $this->hasMany(PurchaseItem::class);
+    }
+
+    /**
+     * Scope: filter by date range.
+     */
+    public function scopeInDateRange(Builder $query, $startDate, $endDate): Builder
+    {
+        return $query->whereBetween('date', [$startDate, $endDate]);
     }
 }
